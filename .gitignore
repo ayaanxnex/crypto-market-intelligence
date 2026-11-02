@@ -1,0 +1,1 @@
+.venv/\n__pycache__/\n*.py[cod]\n.env\n.env.*\n!.env.example\ncrypto_market.db\n.vercel/\n
