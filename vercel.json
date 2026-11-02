@@ -1,7 +1,13 @@
 
 {
   "functions": {
-    "api/*.py": {
+    "api/health.py": {
+      "maxDuration": 30
+    },
+    "api/market.py": {
+      "maxDuration": 30
+    },
+    "api/refresh.py": {
       "maxDuration": 30
     }
   }
