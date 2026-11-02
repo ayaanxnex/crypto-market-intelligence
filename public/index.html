@@ -1,6 +1,856 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Blockscope | Crypto Intelligence</title><link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet"><script src="https://cdn.jsdelivr.net/npm/chart.js"></script><style>
-:root{--cream:#f5f0eb;--paper:#fffdf9;--ink:#171914;--sage:#5c6656;--burgundy:#590907;--green:#00a85a;--red:#e43b22;--line:#d6d0c7;--shadow:5px 5px 0 var(--ink)}*{box-sizing:border-box}body{margin:0;background:var(--cream);color:var(--ink);font-family:'Space Grotesk',sans-serif}.ticker{background:var(--ink);color:white;padding:10px 4vw;display:flex;justify-content:space-between;font:12px 'DM Mono'}.ticker b{color:#00e676}.nav{padding:18px 4vw;border-bottom:2px solid var(--ink);display:flex;justify-content:space-between;gap:15px;background:var(--paper);font-weight:700}.brand{font-size:23px}.brand span{background:var(--green);padding:3px 8px;border:2px solid var(--ink);margin-right:8px}main{max-width:1440px;margin:auto;padding:28px 4vw 60px}.hero{display:flex;justify-content:space-between;align-items:end;gap:20px;flex-wrap:wrap}.eyebrow{font:12px 'DM Mono';letter-spacing:1.5px;color:var(--burgundy)}h1{font-size:clamp(32px,4vw,48px);line-height:1;letter-spacing:-2px;margin:10px 0}.hero p{color:var(--sage)}.actions{display:flex;gap:10px;flex-wrap:wrap}.btn{border:2px solid var(--ink);box-shadow:3px 3px 0 var(--ink);padding:11px 15px;background:var(--green);font-weight:700;cursor:pointer}.secondary{background:var(--paper)}.status{font:12px 'DM Mono';color:var(--sage);margin-top:18px}.error{color:var(--red)}.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:22px 0}.kpi,.panel{background:var(--paper);border:2px solid var(--ink);box-shadow:var(--shadow)}.kpi{padding:17px}.label{font:11px 'DM Mono';color:var(--sage);text-transform:uppercase}.value{font-size:clamp(22px,2.5vw,31px);font-weight:700;margin-top:8px}.sub{font-size:12px;color:var(--sage);margin-top:5px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin:22px 0}.panel{padding:17px;min-width:0}.panel h2{font-size:17px;margin:0 0 14px}.chartbox{height:240px}.tablepanel{padding:0;overflow:hidden}.tablehead{padding:18px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;border-bottom:2px solid var(--ink)}.tablehead h2{margin:0}.search{padding:10px;border:2px solid var(--ink);min-width:230px}.tablewrap{overflow:auto}table{border-collapse:collapse;width:100%;min-width:850px;font-size:13px}th{background:#e9e3da;font:11px 'DM Mono';text-transform:uppercase;text-align:right}th:first-child,td:first-child,th:nth-child(2),td:nth-child(2){text-align:left}th,td{padding:13px 15px;border-bottom:1px solid var(--line)}td{text-align:right;font-family:'DM Mono'}td:nth-child(2){font-family:'Space Grotesk';font-weight:700}.symbol{color:var(--sage);font-size:11px;margin-left:6px}.positive{color:var(--green);font-weight:700}.negative{color:var(--red);font-weight:700}.alert{background:#ffe0d8;color:#9b1c0c;border:1px solid #9b1c0c;padding:3px 6px;font-size:10px}.footer{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;color:var(--sage);font:11px 'DM Mono';padding:20px 0}@media(max-width:900px){.kpis{grid-template-columns:repeat(2,1fr)}.grid{grid-template-columns:1fr 1fr}.grid .panel:last-child{grid-column:1/-1}}@media(max-width:560px){.grid{grid-template-columns:1fr}.grid .panel:last-child{grid-column:auto}.nav small{display:none}}
-</style></head><body><div class="ticker"><span>● SYSTEM <b>LIVE</b> / MARKET INTELLIGENCE</span><span id="clock">CONNECTING…</span></div><header class="nav"><div class="brand"><span>▦</span>BLOCKSCOPE</div><small>ETL PIPELINE · EDA</small><small>UET LAHORE / P4AI</small></header><main><section class="hero"><div><div class="eyebrow">DIGITAL ASSETS / 001</div><h1>Crypto Market<br>Intelligence.</h1><p>One pipeline. Fifty assets. Clearer market signals.</p></div><div class="actions"><button class="btn secondary" id="demo">Simulate shock</button><button class="btn" id="refresh">↻ Refresh pipeline</button></div></section><div id="status" class="status">Connecting…</div><section class="kpis"><div class="kpi"><div class="label">Total market cap</div><div id="cap" class="value">—</div><div class="sub">Top assets · USD</div></div><div class="kpi"><div class="label">24h trading volume</div><div id="volume" class="value">—</div><div class="sub">Reported 24-hour volume</div></div><div class="kpi"><div class="label">Assets processed</div><div id="count" class="value">—</div><div id="valid" class="sub">Validated records</div></div><div class="kpi"><div class="label">Volatility alerts</div><div id="alerts" class="value">—</div><div class="sub">Intraday range above 10%</div></div></section><section class="grid"><div class="panel"><h2>01 / Volatility leaders</h2><div class="chartbox"><canvas id="volChart"></canvas></div></div><div class="panel"><h2>02 / Liquidity map</h2><div class="chartbox"><canvas id="liqChart"></canvas></div></div><div class="panel"><h2>03 / Market breadth</h2><div class="chartbox"><canvas id="breadthChart"></canvas></div></div></section><section class="panel tablepanel"><div class="tablehead"><h2>Market ledger <span id="rowCount" class="symbol"></span></h2><input id="search" class="search" placeholder="Search coin or symbol…"></div><div class="tablewrap"><table><thead><tr><th><button data-sort="market_cap_rank"># ↕</button></th><th><button data-sort="name">Asset ↕</button></th><th><button data-sort="current_price">Price ↕</button></th><th><button data-sort="price_change_percentage_24h">24h ↕</button></th><th><button data-sort="volatility_pct">Volatility ↕</button></th><th><button data-sort="total_volume">Volume ↕</button></th><th><button data-sort="market_cap">Market cap ↕</button></th><th>Signal</th></tr></thead><tbody id="rows"><tr><td colspan="8">Loading…</td></tr></tbody></table></div></section><div class="footer"><span>DATA: COINGECKO PUBLIC API · USD</span><span id="snapshot">SNAPSHOT: WAITING</span><span>BUILT FOR P4AI / UET LHR</span></div></main>
-<script>
-const $=x=>document.getElementById(x);let coins=[],charts={},sortKey='market_cap_rank',desc=false;const money=n=>{n=+n||0;return n>=1e12?'$'+(n/1e12).toFixed(2)+'T':n>=1e9?'$'+(n/1e9).toFixed(2)+'B':n>=1e6?'$'+(n/1e6).toFixed(1)+'M':n>=1?'$'+n.toLocaleString('en-US',{maximumFractionDigits:2}):'$'+n.toFixed(6)};const pct=n=>(+n>=0?'+':'')+(+n||0).toFixed(2)+'%';function status(s,e=false){$('status').textContent=s;$('status').className='status'+(e?' error':'')}function chart(id,type,labels,datasets,options={}){if(charts[id])charts[id].destroy();charts[id]=new Chart($(id),{type,data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:type==='doughnut'}},...options}})}function table(){let q=$('search').value.toLowerCase(),a=coins.filter(c=>(c.name+' '+c.symbol).toLowerCase().includes(q));a.sort((x,y)=>{let m=typeof x[sortKey]==='string'?String(x[sortKey]).localeCompare(String(y[sortKey])):(+x[sortKey]||0)-(+y[sortKey]||0);return desc?-m:m});$('rowCount').textContent=a.length+' records';$('rows').innerHTML=a.map(c=>`<tr><td>${c.market_cap_rank??'—'}</td><td>${c.name}<span class="symbol">${c.symbol}</span></td><td>${money(c.current_price)}</td><td class="${(+c.price_change_percentage_24h||0)>=0?'positive':'negative'}">${c.price_change_percentage_24h==null?'—':pct(c.price_change_percentage_24h)}</td><td>${(+c.volatility_pct||0).toFixed(2)}%</td><td>${money(c.total_volume)}</td><td>${money(c.market_cap)}</td><td>${c.is_volatility_alert?'<span class="alert">SHOCK</span>':'—'}</td></tr>`).join('')||'<tr><td colspan="8">No matching assets.</td></tr>'}function render(d){coins=d.coins||[];$('cap').textContent=money(coins.reduce((s,c)=>s+(+c.market_cap||0),0));$('volume').textContent=money(coins.reduce((s,c)=>s+(+c.total_volume||0),0));$('count').textContent=coins.length;$('valid').textContent=coins.length+'/50 records in snapshot';$('alerts').textContent=coins.filter(c=>c.is_volatility_alert).length;$('clock').textContent=new Date().toLocaleString();$('snapshot').textContent='SNAPSHOT: '+(d.timestamp?new Date(d.timestamp).toLocaleString():'JUST FETCHED');table();if(!coins.length)return;let v=[...coins].sort((a,b)=>b.volatility_pct-a.volatility_pct).slice(0,8);chart('volChart','bar',v.map(c=>c.symbol),[{data:v.map(c=>+c.volatility_pct.toFixed(2)),backgroundColor:'#590907'}],{indexAxis:'y',plugins:{legend:{display:false}}});let l=[...coins].filter(c=>c.market_cap>0).sort((a,b)=>b.market_cap-a.market_cap).slice(0,20);chart('liqChart','scatter',[],[{label:'Assets',data:l.map(c=>({x:c.market_cap,y:c.total_volume}),),backgroundColor:'#00a85a'}],{scales:{x:{type:'logarithmic',title:{display:true,text:'Market cap'}},y:{type:'logarithmic',title:{display:true,text:'24h volume'}}},plugins:{legend:{display:false}}});let ch=coins.filter(c=>c.price_change_percentage_24h!=null),up=ch.filter(c=>c.price_change_percentage_24h>0).length,down=ch.filter(c=>c.price_change_percentage_24h<0).length;chart('breadthChart','doughnut',['Gainers','Losers','Flat'],[{data:[up,down,ch.length-up-down],backgroundColor:['#00a85a','#e43b22','#b7b2a9']}],{cutout:'65%'});status('Pipeline ready · validated and transformed market data loaded.')}async function load(){status('Loading latest market snapshot…');try{let r=await fetch('/api/market'),d=await r.json();if(!r.ok)throw Error(d.error);render(d)}catch(e){status('API error: '+(e.message||e)+' — run `vercel dev` or deploy to Vercel.',true)}}$('refresh').onclick=async()=>{let b=$('refresh');b.disabled=true;b.textContent='Running pipeline…';status('Extracting → validating → transforming → loading…');try{let r=await fetch('/api/refresh',{method:'POST'}),d=await r.json();if(!r.ok)throw Error(d.error);render(d.snapshot||{coins:[]});status(`Complete: ${d.valid}/${d.fetched} valid; ${d.rejected} rejected; ${d.alerts.length} alerts.`)}catch(e){status('Refresh failed: '+e.message,true)}finally{b.disabled=false;b.textContent='↻ Refresh pipeline'}};$('demo').onclick=()=>{if(!coins.length)return alert('Load data first.');let c=coins.reduce((a,b)=>a.volatility_pct>b.volatility_pct?a:b);alert(`SIMULATED SHOCK\\n${c.name} (${c.symbol})\\nMeasured volatility: ${c.volatility_pct.toFixed(2)}%\\nThreshold: 10%\\nDemo only — no webhook was sent.`)};$('search').oninput=table;document.querySelectorAll('[data-sort]').forEach(b=>b.onclick=()=>{let k=b.dataset.sort;if(sortKey===k)desc=!desc;else{sortKey=k;desc=k!=='name'}table()});load();
-</script></body></html>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Blockscope | Crypto Intelligence</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    :root {
+      --cream: #f5f0eb;
+      --paper: #fffdf9;
+      --ink: #171914;
+      --sage: #5c6656;
+      --burgundy: #590907;
+      --green: #00a85a;
+      --red: #e43b22;
+      --line: #d6d0c7;
+      --shadow: 5px 5px 0 var(--ink);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--cream);
+      color: var(--ink);
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    .ticker {
+      background: var(--ink);
+      color: white;
+      padding: 10px 4vw;
+      display: flex;
+      justify-content: space-between;
+      font: 12px 'DM Mono';
+    }
+
+    .ticker b {
+      color: #00e676;
+    }
+
+    .nav {
+      padding: 18px 4vw;
+      border-bottom: 2px solid var(--ink);
+      display: flex;
+      justify-content: space-between;
+      gap: 15px;
+      background: var(--paper);
+      font-weight: 700;
+    }
+
+    .brand {
+      font-size: 23px;
+    }
+
+    .brand span {
+      background: var(--green);
+      padding: 3px 8px;
+      border: 2px solid var(--ink);
+      margin-right: 8px;
+    }
+
+    main {
+      max-width: 1440px;
+      margin: auto;
+      padding: 28px 4vw 60px;
+    }
+
+    .hero {
+      display: flex;
+      justify-content: space-between;
+      align-items: end;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+
+    .eyebrow {
+      font: 12px 'DM Mono';
+      letter-spacing: 1.5px;
+      color: var(--burgundy);
+    }
+
+    h1 {
+      font-size: clamp(32px, 4vw, 48px);
+      line-height: 1;
+      letter-spacing: -2px;
+      margin: 10px 0;
+    }
+
+    .hero p {
+      color: var(--sage);
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: 2px solid var(--ink);
+      box-shadow: 3px 3px 0 var(--ink);
+      padding: 11px 15px;
+      background: var(--green);
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn:disabled {
+      opacity: .6;
+      cursor: wait;
+    }
+
+    .secondary {
+      background: var(--paper);
+    }
+
+    .status {
+      font: 12px 'DM Mono';
+      color: var(--sage);
+      margin-top: 18px;
+      overflow-wrap: anywhere;
+    }
+
+    .error {
+      color: var(--red);
+    }
+
+    .kpis {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin: 22px 0;
+    }
+
+    .kpi, .panel {
+      background: var(--paper);
+      border: 2px solid var(--ink);
+      box-shadow: var(--shadow);
+    }
+
+    .kpi {
+      padding: 17px;
+      min-width: 0;
+    }
+
+    .label {
+      font: 11px 'DM Mono';
+      color: var(--sage);
+      text-transform: uppercase;
+    }
+
+    .value {
+      font-size: clamp(22px, 2.5vw, 31px);
+      font-weight: 700;
+      margin-top: 8px;
+      overflow-wrap: anywhere;
+    }
+
+    .sub {
+      font-size: 12px;
+      color: var(--sage);
+      margin-top: 5px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      margin: 22px 0;
+    }
+
+    .panel {
+      padding: 17px;
+      min-width: 0;
+    }
+
+    .panel h2 {
+      font-size: 17px;
+      margin: 0 0 14px;
+    }
+
+    .chartbox {
+      height: 240px;
+      position: relative;
+    }
+
+    .tablepanel {
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .tablehead {
+      padding: 18px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      border-bottom: 2px solid var(--ink);
+    }
+
+    .tablehead h2 {
+      margin: 0;
+    }
+
+    .search {
+      padding: 10px;
+      border: 2px solid var(--ink);
+      min-width: 230px;
+      font: inherit;
+    }
+
+    .tablewrap {
+      overflow: auto;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      min-width: 850px;
+      font-size: 13px;
+    }
+
+    th {
+      background: #e9e3da;
+      font: 11px 'DM Mono';
+      text-transform: uppercase;
+      text-align: right;
+    }
+
+    th:first-child, td:first-child,
+    th:nth-child(2), td:nth-child(2) {
+      text-align: left;
+    }
+
+    th, td {
+      padding: 13px 15px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    th button {
+      border: 0;
+      background: transparent;
+      font: inherit;
+      cursor: pointer;
+    }
+
+    td {
+      text-align: right;
+      font-family: 'DM Mono';
+    }
+
+    td:nth-child(2) {
+      font-family: 'Space Grotesk';
+      font-weight: 700;
+    }
+
+    .symbol {
+      color: var(--sage);
+      font-size: 11px;
+      margin-left: 6px;
+    }
+
+    .positive {
+      color: var(--green);
+      font-weight: 700;
+    }
+
+    .negative {
+      color: var(--red);
+      font-weight: 700;
+    }
+
+    .alert {
+      background: #ffe0d8;
+      color: #9b1c0c;
+      border: 1px solid #9b1c0c;
+      padding: 3px 6px;
+      font-size: 10px;
+    }
+
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      color: var(--sage);
+      font: 11px 'DM Mono';
+      padding: 20px 0;
+    }
+
+    @media(max-width: 900px) {
+      .kpis {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .grid {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .grid .panel:last-child {
+        grid-column: 1 / -1;
+      }
+    }
+
+    @media(max-width: 560px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .grid .panel:last-child {
+        grid-column: auto;
+      }
+
+      .nav small {
+        display: none;
+      }
+
+      .kpis {
+        gap: 10px;
+      }
+
+      .search {
+        min-width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="ticker">
+    <span>● SYSTEM <b>LIVE</b> / MARKET INTELLIGENCE</span>
+    <span id="clock">CONNECTING…</span>
+  </div>
+
+  <header class="nav">
+    <div class="brand"><span>▦</span>BLOCKSCOPE</div>
+    <small>ETL PIPELINE · EDA</small>
+    <small>UET LAHORE / P4AI</small>
+  </header>
+
+  <main>
+
+    <section class="hero">
+      <div>
+        <div class="eyebrow">DIGITAL ASSETS / 001</div>
+        <h1>Crypto Market<br>Intelligence.</h1>
+        <p>One pipeline. Fifty assets. Clearer market signals.</p>
+      </div>
+
+      <div class="actions">
+        <button class="btn secondary" id="demo">Simulate shock</button>
+        <button class="btn" id="refresh">↻ Refresh pipeline</button>
+      </div>
+    </section>
+
+    <div id="status" class="status">Connecting…</div>
+
+    <section class="kpis">
+
+      <div class="kpi">
+        <div class="label">Total market cap</div>
+        <div id="cap" class="value">—</div>
+        <div class="sub">Top assets · USD</div>
+      </div>
+
+      <div class="kpi">
+        <div class="label">24h trading volume</div>
+        <div id="volume" class="value">—</div>
+        <div class="sub">Reported 24-hour volume</div>
+      </div>
+
+      <div class="kpi">
+        <div class="label">Assets processed</div>
+        <div id="count" class="value">—</div>
+        <div id="valid" class="sub">Validated records</div>
+      </div>
+
+      <div class="kpi">
+        <div class="label">Volatility alerts</div>
+        <div id="alerts" class="value">—</div>
+        <div class="sub">Intraday range above 10%</div>
+      </div>
+
+    </section>
+
+    <section class="grid">
+
+      <div class="panel">
+        <h2>01 / Volatility leaders</h2>
+        <div class="chartbox">
+          <canvas id="volChart"></canvas>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>02 / Liquidity map</h2>
+        <div class="chartbox">
+          <canvas id="liqChart"></canvas>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>03 / Market breadth</h2>
+        <div class="chartbox">
+          <canvas id="breadthChart"></canvas>
+        </div>
+      </div>
+
+    </section>
+
+    <section class="panel tablepanel">
+
+      <div class="tablehead">
+        <h2>Market ledger <span id="rowCount" class="symbol"></span></h2>
+        <input id="search" class="search" placeholder="Search coin or symbol…">
+      </div>
+
+      <div class="tablewrap">
+        <table>
+          <thead>
+            <tr>
+              <th><button data-sort="market_cap_rank"># ↕</button></th>
+              <th><button data-sort="name">Asset ↕</button></th>
+              <th><button data-sort="current_price">Price ↕</button></th>
+              <th><button data-sort="price_change_percentage_24h">24h ↕</button></th>
+              <th><button data-sort="volatility_pct">Volatility ↕</button></th>
+              <th><button data-sort="total_volume">Volume ↕</button></th>
+              <th><button data-sort="market_cap">Market cap ↕</button></th>
+              <th>Signal</th>
+            </tr>
+          </thead>
+
+          <tbody id="rows">
+            <tr><td colspan="8">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+    </section>
+
+    <div class="footer">
+      <span>DATA: COINGECKO PUBLIC API · USD</span>
+      <span id="snapshot">SNAPSHOT: WAITING</span>
+      <span>BUILT FOR P4AI / UET LHR</span>
+    </div>
+
+  </main>
+
+  <script>
+    const $ = id => document.getElementById(id);
+
+    let coins = [];
+    let charts = {};
+    let sortKey = 'market_cap_rank';
+    let desc = false;
+
+    const money = value => {
+      const n = Number(value);
+
+      if (!Number.isFinite(n)) return '—';
+      if (n >= 1e12) return '$' + (n / 1e12).toFixed(2) + 'T';
+      if (n >= 1e9) return '$' + (n / 1e9).toFixed(2) + 'B';
+      if (n >= 1e6) return '$' + (n / 1e6).toFixed(1) + 'M';
+      if (n >= 1) {
+        return '$' + n.toLocaleString('en-US', {
+          maximumFractionDigits: 2
+        });
+      }
+
+      return '$' + n.toFixed(6);
+    };
+
+    const pct = value => {
+      const n = Number(value);
+
+      return Number.isFinite(n)
+        ? (n >= 0 ? '+' : '') + n.toFixed(2) + '%'
+        : '—';
+    };
+
+    const escapeHTML = value => String(value ?? '').replace(
+      /[&<>"']/g,
+      char => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      })[char]
+    );
+
+    function status(message, isError = false) {
+      $('status').textContent = message;
+      $('status').className = 'status' + (isError ? ' error' : '');
+    }
+
+    async function apiRequest(url) {
+      const response = await fetch(url, {
+        cache: 'no-store'
+      });
+
+      const raw = await response.text();
+      let data;
+
+      try {
+        data = JSON.parse(raw);
+      } catch {
+        throw new Error(
+          `Server returned non-JSON response (HTTP ${response.status}). Check Vercel deployment logs.`
+        );
+      }
+
+      if (!response.ok) {
+        throw new Error(data.error || `HTTP ${response.status}`);
+      }
+
+      return data;
+    }
+
+    function chart(id, type, labels, datasets, options = {}) {
+      if (charts[id]) {
+        charts[id].destroy();
+        delete charts[id];
+      }
+
+      const canvas = $(id);
+
+      if (!canvas || typeof Chart === 'undefined') return;
+
+      charts[id] = new Chart(canvas, {
+        type,
+        data: {
+          labels,
+          datasets
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: type === 'doughnut'
+            }
+          },
+          ...options
+        }
+      });
+    }
+
+    function clearCharts() {
+      Object.keys(charts).forEach(id => {
+        charts[id].destroy();
+        delete charts[id];
+      });
+    }
+
+    function table() {
+      const query = $('search').value.trim().toLowerCase();
+
+      const filtered = coins.filter(coin =>
+        `${coin.name || ''} ${coin.symbol || ''}`
+          .toLowerCase()
+          .includes(query)
+      );
+
+      filtered.sort((a, b) => {
+        const x = a[sortKey];
+        const y = b[sortKey];
+
+        let result;
+
+        if (typeof x === 'string' || typeof y === 'string') {
+          result = String(x ?? '').localeCompare(String(y ?? ''));
+        } else {
+          result = (Number(x) || 0) - (Number(y) || 0);
+        }
+
+        return desc ? -result : result;
+      });
+
+      $('rowCount').textContent = `${filtered.length} records`;
+
+      $('rows').innerHTML = filtered.map(coin => {
+        const change = Number(coin.price_change_percentage_24h);
+        const positive = Number.isFinite(change) && change >= 0;
+
+        return `
+          <tr>
+            <td>${escapeHTML(coin.market_cap_rank ?? '—')}</td>
+            <td>
+              ${escapeHTML(coin.name)}
+              <span class="symbol">${escapeHTML(
+                String(coin.symbol || '').toUpperCase()
+              )}</span>
+            </td>
+            <td>${money(coin.current_price)}</td>
+            <td class="${positive ? 'positive' : 'negative'}">
+              ${pct(coin.price_change_percentage_24h)}
+            </td>
+            <td>${pct(coin.volatility_pct)}</td>
+            <td>${money(coin.total_volume)}</td>
+            <td>${money(coin.market_cap)}</td>
+            <td>
+              ${coin.is_volatility_alert
+                ? '<span class="alert">SHOCK</span>'
+                : '—'}
+            </td>
+          </tr>
+        `;
+      }).join('') || '<tr><td colspan="8">No matching assets.</td></tr>';
+    }
+
+    function render(data) {
+      coins = Array.isArray(data.coins) ? data.coins : [];
+
+      $('cap').textContent = money(
+        coins.reduce((sum, coin) =>
+          sum + (Number(coin.market_cap) || 0), 0
+        )
+      );
+
+      $('volume').textContent = money(
+        coins.reduce((sum, coin) =>
+          sum + (Number(coin.total_volume) || 0), 0
+        )
+      );
+
+      $('count').textContent = coins.length;
+      $('valid').textContent = `${coins.length}/50 records in snapshot`;
+
+      $('alerts').textContent = coins.filter(
+        coin => coin.is_volatility_alert
+      ).length;
+
+      $('clock').textContent = new Date().toLocaleString();
+
+      const snapshotDate = data.timestamp
+        ? new Date(data.timestamp)
+        : null;
+
+      $('snapshot').textContent =
+        snapshotDate && !Number.isNaN(snapshotDate.getTime())
+          ? 'SNAPSHOT: ' + snapshotDate.toLocaleString()
+          : 'SNAPSHOT: TIME UNAVAILABLE';
+
+      table();
+
+      if (!coins.length) {
+        clearCharts();
+        status(data.message || 'No market records available.', true);
+        return;
+      }
+
+      if (typeof Chart === 'undefined') {
+        status('Market data loaded, but Chart.js could not be loaded.', true);
+        return;
+      }
+
+      const volatilityLeaders = [...coins]
+        .filter(c => Number.isFinite(Number(c.volatility_pct)))
+        .sort((a, b) =>
+          Number(b.volatility_pct) - Number(a.volatility_pct)
+        )
+        .slice(0, 8);
+
+      chart(
+        'volChart',
+        'bar',
+        volatilityLeaders.map(c =>
+          String(c.symbol || '').toUpperCase()
+        ),
+        [{
+          label: 'Volatility',
+          data: volatilityLeaders.map(c =>
+            Number(c.volatility_pct)
+          ),
+          backgroundColor: '#590907'
+        }],
+        {
+          indexAxis: 'y',
+          plugins: {
+            legend: { display: false }
+          }
+        }
+      );
+
+      const liquidityAssets = [...coins]
+        .filter(c =>
+          Number(c.market_cap) > 0 &&
+          Number(c.total_volume) > 0
+        )
+        .sort((a, b) =>
+          Number(b.market_cap) - Number(a.market_cap)
+        )
+        .slice(0, 20);
+
+      chart(
+        'liqChart',
+        'scatter',
+        [],
+        [{
+          label: 'Assets',
+          data: liquidityAssets.map(c => ({
+            x: Number(c.market_cap),
+            y: Number(c.total_volume)
+          })),
+          backgroundColor: '#00a85a'
+        }],
+        {
+          scales: {
+            x: {
+              type: 'logarithmic',
+              title: {
+                display: true,
+                text: 'Market cap (USD)'
+              }
+            },
+            y: {
+              type: 'logarithmic',
+              title: {
+                display: true,
+                text: '24h volume (USD)'
+              }
+            }
+          },
+          plugins: {
+            legend: { display: false }
+          }
+        }
+      );
+
+      const changes = coins
+        .map(c => Number(c.price_change_percentage_24h))
+        .filter(Number.isFinite);
+
+      const gainers = changes.filter(n => n > 0).length;
+      const losers = changes.filter(n => n < 0).length;
+      const flat = changes.length - gainers - losers;
+
+      chart(
+        'breadthChart',
+        'doughnut',
+        ['Gainers', 'Losers', 'Flat'],
+        [{
+          data: [gainers, losers, flat],
+          backgroundColor: [
+            '#00a85a',
+            '#e43b22',
+            '#b7b2a9'
+          ]
+        }],
+        {
+          cutout: '65%'
+        }
+      );
+
+      status(`Market data loaded successfully · ${coins.length} assets.`);
+    }
+
+    async function load() {
+      status('Loading latest market snapshot…');
+
+      try {
+        const data = await apiRequest('/api/market');
+        render(data);
+      } catch (error) {
+        status('Market API error: ' + error.message, true);
+      }
+    }
+
+    async function refreshPipeline() {
+      const button = $('refresh');
+
+      button.disabled = true;
+      button.textContent = 'Running pipeline…';
+
+      status('Extracting → validating → transforming → loading…');
+
+      try {
+        const result = await apiRequest('/api/refresh');
+
+        let snapshot;
+
+        if (result.snapshot) {
+          snapshot = result.snapshot;
+        } else {
+          snapshot = await apiRequest('/api/market');
+        }
+
+        render(snapshot);
+
+        status(
+          `Refresh complete: ${result.valid ?? '—'}/${result.fetched ?? '—'} valid · ` +
+          `${result.rejected ?? '—'} rejected · ${(result.alerts || []).length} alerts.`
+        );
+
+      } catch (error) {
+        status('Refresh failed: ' + error.message, true);
+
+      } finally {
+        button.disabled = false;
+        button.textContent = '↻ Refresh pipeline';
+      }
+    }
+
+    $('refresh').addEventListener('click', refreshPipeline);
+
+    $('demo').addEventListener('click', () => {
+      if (!coins.length) {
+        alert('Load market data first.');
+        return;
+      }
+
+      const coin = coins.reduce((a, b) =>
+        Number(a.volatility_pct) > Number(b.volatility_pct) ? a : b
+      );
+
+      alert(
+        `SIMULATED SHOCK\n${coin.name} (${coin.symbol})\n` +
+        `Measured volatility: ${Number(coin.volatility_pct).toFixed(2)}%\n` +
+        'Threshold: 10%\n\n' +
+        'Demo only — no webhook was sent.'
+      );
+    });
+
+    $('search').addEventListener('input', table);
+
+    document.querySelectorAll('[data-sort]').forEach(button => {
+      button.addEventListener('click', () => {
+        const key = button.dataset.sort;
+
+        if (sortKey === key) {
+          desc = !desc;
+        } else {
+          sortKey = key;
+          desc = key !== 'name';
+        }
+
+        table();
+      });
+    });
+
+    load();
+  </script>
+
+</body>
+</html>

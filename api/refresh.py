@@ -5,7 +5,7 @@ from api._shared import refresh, serialize_latest
 
 
 class handler(BaseHTTPRequestHandler):
-    def do_POST(self):
+    def do_GET(self):
         try:
             result = refresh()
             result["snapshot"] = serialize_latest()
