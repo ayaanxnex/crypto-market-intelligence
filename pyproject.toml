@@ -13,3 +13,6 @@ dependencies = [
     "seaborn>=0.13,<1",
     "python-dotenv>=1.0,<2"
 ]
+
+[tool.vercel]
+entrypoint = "api.health:handler"
