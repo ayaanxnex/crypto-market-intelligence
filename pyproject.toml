@@ -14,5 +14,3 @@ dependencies = [
     "python-dotenv>=1.0,<2"
 ]
 
-[tool.vercel]
-entrypoint = "api.health:handler"
