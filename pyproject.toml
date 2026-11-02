@@ -1,2 +1,3 @@
+
 [tool.vercel]
-entrypoint = "api/health.py"
+entrypoint = "api.health:handler"
