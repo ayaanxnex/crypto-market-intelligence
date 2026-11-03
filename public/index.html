@@ -369,6 +369,36 @@ td:nth-child(2){font-weight:600}.symbol{color:#718096;font-weight:500}
 @media(max-width:900px){.sub-kpis{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:560px){.sub-kpis{grid-template-columns:repeat(2,1fr)}main{padding-left:4vw;padding-right:4vw}.hero h1{font-size:36px}}
 
+
+    /* Interactive chart enhancements */
+    .chart-panel{position:relative;transition:box-shadow .18s ease}
+    .chart-panel h2{padding-right:84px}
+    .chart-expand{position:absolute;right:16px;top:14px;border:1px solid #dbe2e9;background:#fff;border-radius:8px;padding:7px 9px;color:#536273;font:600 11px 'Space Grotesk';cursor:pointer}
+    .chart-expand:hover{background:#f0f7f4;border-color:#9bd9bd;color:#087a4d}
+    .chart-hint{font:10px 'DM Mono';color:#8793a1;margin-top:9px}
+    .chart-count{display:inline-flex;align-items:center;gap:6px;background:#e9fbf2;color:#087a4d;border:1px solid #bdebd2;border-radius:999px;padding:4px 8px;font:600 10px 'DM Mono';margin-left:7px;vertical-align:middle}
+    .chart-backdrop{display:none;position:fixed;inset:0;background:rgba(15,25,38,.62);z-index:1000;backdrop-filter:blur(3px)}
+    .chart-backdrop.visible{display:block}
+    .chart-panel.expanded{position:fixed!important;inset:3vh 3vw!important;z-index:1001;overflow:auto;background:#fff;padding:24px;box-shadow:0 24px 80px rgba(0,0,0,.28);border-radius:16px;display:flex;flex-direction:column}
+    .chart-panel.expanded .chartbox{height:min(70vh,720px);min-height:360px;flex:1}
+    .chart-panel.expanded h2{font-size:20px;padding-right:90px}
+    .chart-panel.expanded .chart-hint{font-size:12px}
+    .coin-modal-backdrop{position:fixed;inset:0;background:rgba(15,25,38,.45);z-index:1100;display:none;align-items:center;justify-content:center;padding:18px}
+    .coin-modal-backdrop.visible{display:flex}
+    .coin-modal{width:min(440px,100%);background:#fff;border:1px solid #e5eaf0;border-radius:18px;padding:22px;box-shadow:0 24px 70px rgba(0,0,0,.25);position:relative}
+    .coin-modal-close{position:absolute;right:15px;top:13px;border:1px solid #dbe2e9;border-radius:8px;background:#fff;width:32px;height:32px;font-size:20px;cursor:pointer;color:#536273}
+    .coin-modal-heading{display:flex;align-items:center;gap:12px;padding-right:30px;margin-bottom:20px}
+    .coin-modal-icon{width:44px;height:44px;border-radius:50%;object-fit:cover;background:#eef2f6}
+    .coin-modal-heading h3{margin:0;font-size:21px;line-height:1.25}
+    .coin-modal-heading p{margin:4px 0 0;color:#718096;font:12px 'DM Mono';text-transform:uppercase}
+    .coin-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .coin-stat{border:1px solid #e8edf2;border-radius:11px;padding:13px;min-width:0}
+    .coin-stat span{display:block;color:#718096;font:10px 'DM Mono';text-transform:uppercase;letter-spacing:.4px}
+    .coin-stat strong{display:block;margin-top:7px;font-size:17px;overflow-wrap:anywhere}
+    .coin-modal-note{color:#8793a1;font-size:11px;margin:16px 0 0;line-height:1.5}
+    canvas#liqChart{cursor:pointer}
+    @media(max-width:600px){.chart-panel.expanded{inset:1vh 1vw!important;padding:16px}.chart-panel.expanded .chartbox{min-height:300px;height:68vh}.coin-stats{gap:8px}.coin-stat{padding:10px}.coin-stat strong{font-size:15px}}
+
   </style>
 </head>
 
@@ -509,6 +539,24 @@ td:nth-child(2){font-weight:600}.symbol{color:#718096;font-weight:500}
 
   </main>
 
+  <div id="chartBackdrop" class="chart-backdrop" aria-hidden="true"></div>
+  <div id="coinModalBackdrop" class="coin-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="coinModalName">
+    <div class="coin-modal">
+      <button id="coinModalClose" class="coin-modal-close" aria-label="Close coin details">×</button>
+      <div class="coin-modal-heading">
+        <img id="coinModalImage" class="coin-modal-icon" alt="" hidden>
+        <div><h3 id="coinModalName">Asset name</h3><p id="coinModalSymbol">SYMBOL</p></div>
+      </div>
+      <div class="coin-stats">
+        <div class="coin-stat"><span>Market cap</span><strong id="coinModalCap">—</strong></div>
+        <div class="coin-stat"><span>24h volume</span><strong id="coinModalVolume">—</strong></div>
+        <div class="coin-stat"><span>Volatility</span><strong id="coinModalVolatility">—</strong></div>
+        <div class="coin-stat"><span>Volume / cap</span><strong id="coinModalRatio">—</strong></div>
+      </div>
+      <p class="coin-modal-note">Click a different point to inspect another asset. Volume-to-cap is a trading-activity indicator, not a direct measure of order-book liquidity.</p>
+    </div>
+  </div>
+
   <script>
     const $ = id => document.getElementById(id);
 
@@ -516,6 +564,8 @@ td:nth-child(2){font-weight:600}.symbol{color:#718096;font-weight:500}
     let charts = {};
     let sortKey = 'market_cap_rank';
     let desc = false;
+    let liquidityAssetsPlotted = 0;
+    let expandedPanel = null;
 
     const money = value => {
       const n = Number(value);
@@ -578,6 +628,72 @@ td:nth-child(2){font-weight:600}.symbol{color:#718096;font-weight:500}
       }
 
       return data;
+    }
+
+    function showCoinDetails(coin) {
+      if (!coin) return;
+      $('coinModalName').textContent = coin.name || 'Unknown asset';
+      $('coinModalSymbol').textContent = String(coin.symbol || '—').toUpperCase();
+      $('coinModalCap').textContent = money(coin.market_cap);
+      $('coinModalVolume').textContent = money(coin.total_volume);
+      $('coinModalVolatility').textContent = pct(coin.volatility_pct);
+      const cap = Number(coin.market_cap), volume = Number(coin.total_volume);
+      $('coinModalRatio').textContent = cap > 0 && Number.isFinite(volume) ? (volume / cap * 100).toFixed(2) + '%' : '—';
+      const image = $('coinModalImage');
+      if (coin.image) { image.src = coin.image; image.alt = `${coin.name || 'Coin'} logo`; image.hidden = false; }
+      else { image.removeAttribute('src'); image.hidden = true; }
+      $('coinModalBackdrop').classList.add('visible');
+    }
+
+    function closeCoinDetails() { $('coinModalBackdrop').classList.remove('visible'); }
+
+    function setExpanded(panel, expand) {
+      const backdrop = $('chartBackdrop');
+      if (expand) {
+        if (expandedPanel && expandedPanel !== panel) setExpanded(expandedPanel, false);
+        expandedPanel = panel;
+        panel.classList.add('expanded');
+        backdrop.classList.add('visible');
+        panel.querySelector('.chart-expand').textContent = '✕ Close';
+        document.body.style.overflow = 'hidden';
+      } else {
+        panel.classList.remove('expanded');
+        panel.querySelector('.chart-expand').textContent = '⤢ Expand';
+        expandedPanel = null;
+        backdrop.classList.remove('visible');
+        document.body.style.overflow = '';
+      }
+      Object.values(charts).forEach(instance => instance.resize());
+    }
+
+    function setupChartInteractions() {
+      document.querySelectorAll('.grid .panel').forEach((panel, index) => {
+        panel.classList.add('chart-panel');
+        const button = document.createElement('button');
+        button.type = 'button'; button.className = 'chart-expand';
+        button.textContent = '⤢ Expand';
+        button.setAttribute('aria-label', `Expand ${panel.querySelector('h2')?.textContent || 'chart'}`);
+        button.addEventListener('click', () => setExpanded(panel, !panel.classList.contains('expanded')));
+        panel.appendChild(button);
+        if (index === 1) {
+          const hint = document.createElement('div');
+          hint.className = 'chart-hint';
+          hint.innerHTML = `Click a dot to inspect a coin <span id="liqCount" class="chart-count">0 / 0 plotted</span>`;
+          panel.appendChild(hint);
+        } else {
+          const hint = document.createElement('div'); hint.className = 'chart-hint';
+          hint.textContent = 'Click Expand to inspect this chart in a larger view'; panel.appendChild(hint);
+        }
+      });
+      $('chartBackdrop').addEventListener('click', () => { if (expandedPanel) setExpanded(expandedPanel, false); });
+      $('coinModalClose').addEventListener('click', closeCoinDetails);
+      $('coinModalBackdrop').addEventListener('click', event => { if (event.target === $('coinModalBackdrop')) closeCoinDetails(); });
+      document.addEventListener('keydown', event => {
+        if (event.key === 'Escape') {
+          closeCoinDetails();
+          if (expandedPanel) setExpanded(expandedPanel, false);
+        }
+      });
     }
 
     function chart(id, type, labels, datasets, options = {}) {
@@ -762,8 +878,7 @@ td:nth-child(2){font-weight:600}.symbol{color:#718096;font-weight:500}
         )
         .sort((a, b) =>
           Number(b.market_cap) - Number(a.market_cap)
-        )
-        .slice(0, 20);
+        );
 
       chart(
         'liqChart',
@@ -773,11 +888,36 @@ td:nth-child(2){font-weight:600}.symbol{color:#718096;font-weight:500}
           label: 'Assets',
           data: liquidityAssets.map(c => ({
             x: Number(c.market_cap),
-            y: Number(c.total_volume)
+            y: Number(c.total_volume),
+            coin: c
           })),
-          backgroundColor: 'rgba(7,150,105,.72)'
+          pointRadius: 5,
+          pointHoverRadius: 8,
+          pointHitRadius: 12,
+          backgroundColor: 'rgba(7,150,105,.72)',
+          hoverBackgroundColor: '#075e43'
         }],
         {
+          onClick: (event, elements, instance) => {
+            if (!elements.length) return;
+            const point = instance.data.datasets[elements[0].datasetIndex].data[elements[0].index];
+            if (point && point.coin) showCoinDetails(point.coin);
+          },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                title: items => {
+                  const coin = items[0]?.raw?.coin;
+                  return coin ? `${coin.name || 'Unknown'} (${String(coin.symbol || '').toUpperCase()})` : 'Asset';
+                },
+                label: item => {
+                  const coin = item.raw.coin;
+                  return coin ? [`Market cap: ${money(coin.market_cap)}`, `24h volume: ${money(coin.total_volume)}`, `Volatility: ${pct(coin.volatility_pct)}`, 'Click point for details'] : '';
+                }
+              }
+            }
+          },
           scales: {
             x: {
               type: 'logarithmic',
@@ -799,6 +939,10 @@ td:nth-child(2){font-weight:600}.symbol{color:#718096;font-weight:500}
           }
         }
       );
+
+      liquidityAssetsPlotted = liquidityAssets.length;
+      const countNode = $('liqCount');
+      if (countNode) countNode.textContent = `${liquidityAssetsPlotted} / ${coins.length} plotted`;
 
       const changes = coins
         .map(c => Number(c.price_change_percentage_24h))
@@ -918,6 +1062,7 @@ td:nth-child(2){font-weight:600}.symbol{color:#718096;font-weight:500}
       });
     });
 
+    setupChartInteractions();
     load();
   </script>
 
