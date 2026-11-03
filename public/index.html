@@ -332,6 +332,43 @@
         min-width: 100%;
       }
     }
+
+/* Refined Blockscope market-ledger theme */
+:root{--cream:#f4f6f8;--paper:#fff;--ink:#17212b;--sage:#64748b;--burgundy:#475569;--green:#079669;--red:#e34b55;--line:#e5eaf0;--shadow:0 8px 24px rgba(23,33,43,.055)}
+body{background:#f4f6f8;color:#17212b}.ticker{background:#101a27}.nav{background:#fff;border-bottom:1px solid #e5eaf0}
+.brand span{background:#c9f7df;border:1px solid #b7ebd0;color:#087a4d;border-radius:8px}
+main{max-width:1500px;padding-top:34px}.eyebrow{color:#64748b}.hero p{color:#64748b}
+.btn{border:1px solid #17212b;border-radius:9px;box-shadow:none}.secondary{background:#fff}
+.kpi,.panel{border:1px solid #e5eaf0;border-radius:13px;box-shadow:var(--shadow)}
+.kpi{padding:19px}.label{color:#718096;letter-spacing:.8px}.grid{gap:16px}.panel{padding:18px}
+.panel h2{font-size:15px}.chartbox{height:245px}.tablepanel{padding:0}
+.tablehead{padding:18px 20px;border-bottom:1px solid #e5eaf0;align-items:center}
+.search{border:1px solid #d8e0e8;border-radius:9px;outline:none;min-width:240px}
+.search:focus{border-color:#64748b;box-shadow:0 0 0 3px rgba(100,116,139,.12)}
+table{min-width:1120px;font-size:12.5px}
+th{position:sticky;top:0;z-index:1;background:#f7f9fb;color:#64748b;font-size:10px;letter-spacing:.4px}
+th,td{padding:14px 13px;border-bottom:1px solid #edf0f4;white-space:nowrap}
+tbody tr{background:#fff}tbody tr:hover{background:#f7fafc}
+td:nth-child(2){font-weight:600}.symbol{color:#718096;font-weight:500}
+.positive{color:#079669}.negative{color:#e34b55}
+.alert{background:#fff1f0;color:#c7353e;border:1px solid #ffd2d0;border-radius:5px;padding:4px 7px;font-weight:700}
+.coin-cell{display:flex;align-items:center;gap:9px;min-width:160px}
+.coin-icon,.coin-fallback{width:27px;height:27px;border-radius:50%;flex:0 0 27px}
+.coin-icon{object-fit:cover;background:#eef2f6}
+.coin-fallback{display:inline-flex;align-items:center;justify-content:center;background:#edf2f7;color:#475569;font:700 10px 'DM Mono'}
+.mini-spark{width:104px;height:32px;display:block}.mini-spark polyline{fill:none;stroke:#079669;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.mini-spark.down polyline{stroke:#e34b55}.mini-empty{color:#a0aab7;font:10px 'DM Mono'}
+.table-tools{display:flex;align-items:center;gap:7px;flex-wrap:wrap}
+.filter-btn{border:1px solid #dbe2e9;background:#fff;border-radius:8px;padding:9px 11px;color:#536273;font:600 11px 'Space Grotesk';cursor:pointer}
+.filter-btn.active{color:#087a4d;background:#e9fbf2;border-color:#bdebd2}
+.sub-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:0 0 20px}
+.mini-kpi{background:#fff;border:1px solid #e5eaf0;border-radius:11px;padding:13px 15px;min-width:0}
+.mini-kpi .label{font-size:10px}.mini-kpi strong{display:block;margin-top:6px;font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.table-note{color:#8190a1;font:10px 'DM Mono';padding:10px 18px;border-top:1px solid #edf0f4}
+.footer{color:#8793a1}
+@media(max-width:900px){.sub-kpis{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.sub-kpis{grid-template-columns:repeat(2,1fr)}main{padding-left:4vw;padding-right:4vw}.hero h1{font-size:36px}}
+
   </style>
 </head>
 
@@ -418,11 +455,23 @@
 
     </section>
 
+    <section class="sub-kpis" aria-label="Market highlights">
+      <div class="mini-kpi"><div class="label">Top 24h gainer</div><strong id="topGainer">—</strong></div>
+      <div class="mini-kpi"><div class="label">Top 24h loser</div><strong id="topLoser">—</strong></div>
+      <div class="mini-kpi"><div class="label">Highest volume</div><strong id="topVolume">—</strong></div>
+      <div class="mini-kpi"><div class="label">Market breadth</div><strong id="breadthText">—</strong></div>
+    </section>
     <section class="panel tablepanel">
 
       <div class="tablehead">
         <h2>Market ledger <span id="rowCount" class="symbol"></span></h2>
-        <input id="search" class="search" placeholder="Search coin or symbol…">
+        <div class="table-tools">
+          <button class="filter-btn active" data-filter="all">All assets</button>
+          <button class="filter-btn" data-filter="gainers">Gainers</button>
+          <button class="filter-btn" data-filter="losers">Losers</button>
+          <button class="filter-btn" data-filter="alerts">Alerts</button>
+          <input id="search" class="search" placeholder="Search coin or symbol…">
+        </div>
       </div>
 
       <div class="tablewrap">
@@ -432,19 +481,23 @@
               <th><button data-sort="market_cap_rank"># ↕</button></th>
               <th><button data-sort="name">Asset ↕</button></th>
               <th><button data-sort="current_price">Price ↕</button></th>
+              <th><button data-sort="price_change_percentage_1h_in_currency">1h ↕</button></th>
               <th><button data-sort="price_change_percentage_24h">24h ↕</button></th>
+              <th><button data-sort="price_change_percentage_7d_in_currency">7d ↕</button></th>
               <th><button data-sort="volatility_pct">Volatility ↕</button></th>
               <th><button data-sort="total_volume">Volume ↕</button></th>
               <th><button data-sort="market_cap">Market cap ↕</button></th>
               <th>Signal</th>
+              <th>7d trend</th>
             </tr>
           </thead>
 
           <tbody id="rows">
-            <tr><td colspan="8">Loading…</td></tr>
+            <tr><td colspan="11">Loading market data…</td></tr>
           </tbody>
         </table>
       </div>
+      <div class="table-note">Coin logos and mini charts use real CoinGecko image and sparkline data when available. Missing history is not fabricated.</div>
 
     </section>
 
@@ -563,60 +616,58 @@
       });
     }
 
+
+    let activeFilter = 'all';
+
+    function sparkline(coin) {
+      const values = coin.sparkline_in_7d && coin.sparkline_in_7d.price;
+      if (!Array.isArray(values) || values.length < 2) return '<span class="mini-empty">history pending</span>';
+      const nums = values.map(Number).filter(Number.isFinite);
+      if (nums.length < 2) return '<span class="mini-empty">history pending</span>';
+      const min = Math.min(...nums), max = Math.max(...nums), range = max - min || 1;
+      const points = nums.map((v,i) => `${(2+i/(nums.length-1)*96).toFixed(1)},${(27-(v-min)/range*23).toFixed(1)}`).join(' ');
+      const down = nums[nums.length-1] < nums[0];
+      return `<svg class="mini-spark ${down?'down':''}" viewBox="0 0 100 30" role="img" aria-label="7 day price trend"><polyline points="${points}"/></svg>`;
+    }
+
+    function coinIdentity(coin) {
+      const symbol = escapeHTML(String(coin.symbol || '').toUpperCase());
+      const name = escapeHTML(coin.name || 'Unknown');
+      const image = typeof coin.image === 'string' ? escapeHTML(coin.image) : '';
+      const visual = image
+        ? `<img class="coin-icon" src="${image}" alt="" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='inline-flex'"><span class="coin-fallback" style="display:none">${symbol.slice(0,3)||'?'}</span>`
+        : `<span class="coin-fallback">${symbol.slice(0,3)||'?'}</span>`;
+      return `<div class="coin-cell">${visual}<span>${name}<span class="symbol"> ${symbol}</span></span></div>`;
+    }
+
     function table() {
       const query = $('search').value.trim().toLowerCase();
-
-      const filtered = coins.filter(coin =>
-        `${coin.name || ''} ${coin.symbol || ''}`
-          .toLowerCase()
-          .includes(query)
-      );
-
-      filtered.sort((a, b) => {
-        const x = a[sortKey];
-        const y = b[sortKey];
-
-        let result;
-
-        if (typeof x === 'string' || typeof y === 'string') {
-          result = String(x ?? '').localeCompare(String(y ?? ''));
-        } else {
-          result = (Number(x) || 0) - (Number(y) || 0);
-        }
-
+      let filtered = coins.filter(c => `${c.name||''} ${c.symbol||''}`.toLowerCase().includes(query));
+      if (activeFilter === 'gainers') filtered = filtered.filter(c => Number(c.price_change_percentage_24h) > 0);
+      if (activeFilter === 'losers') filtered = filtered.filter(c => Number(c.price_change_percentage_24h) < 0);
+      if (activeFilter === 'alerts') filtered = filtered.filter(c => c.is_volatility_alert);
+      filtered.sort((a,b) => {
+        const x=a[sortKey], y=b[sortKey];
+        const result = typeof x==='string'||typeof y==='string'
+          ? String(x??'').localeCompare(String(y??''))
+          : (Number(x)||0)-(Number(y)||0);
         return desc ? -result : result;
       });
-
-      $('rowCount').textContent = `${filtered.length} records`;
-
-      $('rows').innerHTML = filtered.map(coin => {
-        const change = Number(coin.price_change_percentage_24h);
-        const positive = Number.isFinite(change) && change >= 0;
-
-        return `
-          <tr>
-            <td>${escapeHTML(coin.market_cap_rank ?? '—')}</td>
-            <td>
-              ${escapeHTML(coin.name)}
-              <span class="symbol">${escapeHTML(
-                String(coin.symbol || '').toUpperCase()
-              )}</span>
-            </td>
-            <td>${money(coin.current_price)}</td>
-            <td class="${positive ? 'positive' : 'negative'}">
-              ${pct(coin.price_change_percentage_24h)}
-            </td>
-            <td>${pct(coin.volatility_pct)}</td>
-            <td>${money(coin.total_volume)}</td>
-            <td>${money(coin.market_cap)}</td>
-            <td>
-              ${coin.is_volatility_alert
-                ? '<span class="alert">SHOCK</span>'
-                : '—'}
-            </td>
-          </tr>
-        `;
-      }).join('') || '<tr><td colspan="8">No matching assets.</td></tr>';
+      $('rowCount').textContent = `${filtered.length} of ${coins.length} assets`;
+      $('rows').innerHTML = filtered.map(c => `
+        <tr>
+          <td>${escapeHTML(c.market_cap_rank ?? '—')}</td>
+          <td>${coinIdentity(c)}</td>
+          <td>${money(c.current_price)}</td>
+          <td class="${Number(c.price_change_percentage_1h_in_currency)>=0?'positive':'negative'}">${pct(c.price_change_percentage_1h_in_currency)}</td>
+          <td class="${Number(c.price_change_percentage_24h)>=0?'positive':'negative'}">${pct(c.price_change_percentage_24h)}</td>
+          <td class="${Number(c.price_change_percentage_7d_in_currency)>=0?'positive':'negative'}">${pct(c.price_change_percentage_7d_in_currency)}</td>
+          <td>${pct(c.volatility_pct)}</td>
+          <td>${money(c.total_volume)}</td>
+          <td>${money(c.market_cap)}</td>
+          <td>${c.is_volatility_alert?'<span class="alert">SHOCK</span>':'—'}</td>
+          <td>${sparkline(c)}</td>
+        </tr>`).join('') || '<tr><td colspan="11">No matching assets.</td></tr>';
     }
 
     function render(data) {
@@ -640,6 +691,17 @@
       $('alerts').textContent = coins.filter(
         coin => coin.is_volatility_alert
       ).length;
+
+      const movers = coins.filter(c => Number.isFinite(Number(c.price_change_percentage_24h)));
+      const best = [...movers].sort((a,b) => Number(b.price_change_percentage_24h)-Number(a.price_change_percentage_24h))[0];
+      const worst = [...movers].sort((a,b) => Number(a.price_change_percentage_24h)-Number(b.price_change_percentage_24h))[0];
+      const liquid = [...coins].sort((a,b) => Number(b.total_volume)-Number(a.total_volume))[0];
+      const up = movers.filter(c => Number(c.price_change_percentage_24h)>0).length;
+      const down = movers.filter(c => Number(c.price_change_percentage_24h)<0).length;
+      $('topGainer').textContent = best ? `${String(best.symbol).toUpperCase()} ${pct(best.price_change_percentage_24h)}` : '—';
+      $('topLoser').textContent = worst ? `${String(worst.symbol).toUpperCase()} ${pct(worst.price_change_percentage_24h)}` : '—';
+      $('topVolume').textContent = liquid ? `${String(liquid.symbol).toUpperCase()} · ${money(liquid.total_volume)}` : '—';
+      $('breadthText').textContent = `${up} up · ${down} down`;
 
       $('clock').textContent = new Date().toLocaleString();
 
@@ -683,7 +745,7 @@
           data: volatilityLeaders.map(c =>
             Number(c.volatility_pct)
           ),
-          backgroundColor: '#590907'
+          backgroundColor: 'rgba(71,85,105,.82)'
         }],
         {
           indexAxis: 'y',
@@ -713,7 +775,7 @@
             x: Number(c.market_cap),
             y: Number(c.total_volume)
           })),
-          backgroundColor: '#00a85a'
+          backgroundColor: 'rgba(7,150,105,.72)'
         }],
         {
           scales: {
@@ -753,9 +815,9 @@
         [{
           data: [gainers, losers, flat],
           backgroundColor: [
-            '#00a85a',
-            '#e43b22',
-            '#b7b2a9'
+            '#079669',
+            '#e34b55',
+            '#cbd5e1'
           ]
         }],
         {
@@ -833,6 +895,13 @@
     });
 
     $('search').addEventListener('input', table);
+    document.querySelectorAll('[data-filter]').forEach(button => {
+      button.addEventListener('click', () => {
+        activeFilter = button.dataset.filter;
+        document.querySelectorAll('[data-filter]').forEach(item => item.classList.toggle('active', item === button));
+        table();
+      });
+    });
 
     document.querySelectorAll('[data-sort]').forEach(button => {
       button.addEventListener('click', () => {
