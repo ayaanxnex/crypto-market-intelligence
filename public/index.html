@@ -555,6 +555,86 @@ td:nth-child(2){font-weight:600}.symbol{color:#718096;font-weight:500}
       *, *::before, *::after { transition-duration: .01ms !important; scroll-behavior: auto !important; }
     }
 
+
+    /* Interaction restoration: expanded charts, asset details, simulated shock and theme toggle */
+    .actions { display:flex; flex-wrap:wrap; gap:10px; align-items:center; }
+    .chart-title-row { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:12px; }
+    .chart-title-row h2 { margin:0; }
+    .chart-expand { flex:0 0 auto; cursor:pointer; padding:6px 9px; font:11px 'DM Mono',monospace; }
+    .chart-count { display:inline-block; margin-left:6px; padding:3px 6px; border-radius:5px; font:10px 'DM Mono',monospace; vertical-align:middle; }
+    .chart-hint { margin:8px 0 0; font:10px 'DM Mono',monospace; }
+    .chart-panel.expanded {
+      position:fixed !important; z-index:1200; inset:4vh 4vw !important; width:auto !important; height:92vh;
+      overflow:auto; padding:24px; display:flex; flex-direction:column;
+    }
+    .chart-panel.expanded .chartbox { flex:1; min-height:0; height:auto; }
+    body.chart-expanded::before {
+      content:""; position:fixed; inset:0; background:rgba(3,8,15,.82); backdrop-filter:blur(5px); z-index:1199;
+    }
+    body.modal-open { overflow:hidden; }
+    .coin-modal-backdrop[hidden] { display:none !important; }
+    .coin-modal-backdrop {
+      position:fixed; inset:0; z-index:1500; display:flex; align-items:center; justify-content:center;
+      padding:20px; background:rgba(3,8,15,.78); backdrop-filter:blur(5px);
+    }
+    .coin-modal {
+      position:relative; width:min(620px,100%); max-height:90vh; overflow:auto; padding:26px;
+    }
+    .coin-modal-close {
+      position:absolute; top:12px; right:12px; width:34px; height:34px; cursor:pointer; font-size:22px; line-height:1;
+    }
+    .coin-modal-heading { padding-right:38px; margin-bottom:22px; }
+    .modal-coin-identity { display:flex; gap:13px; align-items:center; }
+    .modal-coin-icon,.modal-coin-fallback { width:46px; height:46px; border-radius:50%; object-fit:contain; flex-shrink:0; }
+    .modal-coin-fallback { display:inline-flex; align-items:center; justify-content:center; font-weight:700; background:#263548; color:var(--bc-lime); }
+    .coin-modal-heading h2 { margin:0; font-size:22px; }
+    .coin-modal-heading h2 span { color:var(--bc-muted); font-size:14px; }
+    .coin-modal-heading p,.coin-modal-note { margin:5px 0 0; font-size:12px; color:var(--bc-muted); }
+    .coin-stats-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+    .coin-stat { display:flex; flex-direction:column; gap:7px; padding:13px; min-width:0; }
+    .coin-stat span { font:10px 'DM Mono',monospace; text-transform:uppercase; letter-spacing:.4px; }
+    .coin-stat strong { font-size:16px; overflow-wrap:anywhere; }
+    .coin-modal-note { line-height:1.6; margin-top:18px; }
+    .shock-modal .eyebrow { font:11px 'DM Mono',monospace; margin-bottom:8px; }
+    .shock-modal h2 { margin:0 0 18px; }
+    .shock-asset { display:flex; align-items:center; gap:12px; padding:13px; margin-bottom:14px; border:1px solid var(--bc-border); border-radius:10px; background:var(--bc-surface); }
+    .shock-asset p { margin:4px 0 0; font-size:12px; color:var(--bc-muted); }
+    .shock-indicator { width:11px; height:11px; border-radius:50%; background:var(--bc-lime); box-shadow:0 0 0 5px rgba(183,228,69,.12); flex-shrink:0; }
+    .shock-indicator.hot { background:var(--bc-red); box-shadow:0 0 0 5px rgba(240,106,114,.12); }
+    .light-mode {
+      color-scheme:light;
+      --cream:#F4F7FB; --paper:#FFFFFF; --ink:#D8E0E8; --sage:#526174;
+      --burgundy:#709D17; --green:#709D17; --red:#D94B57; --line:#D8E0E8;
+      --shadow:0 8px 24px rgba(31,48,66,.08);
+      --bc-bg:#F4F7FB; --bc-surface:#FFFFFF; --bc-panel:#FFFFFF; --bc-panel-raised:#F0F4F8;
+      --bc-border:#D8E0E8; --bc-text:#172333; --bc-muted:#526174; --bc-lime:#709D17;
+      --bc-lime-bright:#8AB52A; --bc-red:#D94B57;
+      background:var(--bc-bg); color:var(--bc-text);
+    }
+    body.light-mode .ticker { background:#EAF0F5; color:#526174; border-color:#D8E0E8; }
+    body.light-mode .nav { background:#FFFFFF; color:#172333; border-color:#D8E0E8; }
+    body.light-mode .btn { background:#709D17; color:#FFFFFF; border-color:#709D17; }
+    body.light-mode .secondary, body.light-mode .chart-expand, body.light-mode .filter-btn { background:#F0F4F8; color:#344357; border-color:#D1DAE4; }
+    body.light-mode .kpi, body.light-mode .panel, body.light-mode .mini-kpi, body.light-mode tbody tr { background:#FFFFFF; color:#172333; border-color:#D8E0E8; }
+    body.light-mode .value, body.light-mode .panel h2, body.light-mode .tablehead h2, body.light-mode .mini-kpi strong { color:#172333; }
+    body.light-mode th { background:#EDF2F6; color:#526174; }
+    body.light-mode th, body.light-mode td { border-color:#E0E6EC; }
+    body.light-mode tbody tr:hover { background:#F3F7FA; }
+    body.light-mode .search { background:#FFFFFF; color:#172333; border-color:#D1DAE4; }
+    body.light-mode .coin-modal { background:#FFFFFF; color:#172333; border-color:#D8E0E8; }
+    body.light-mode .coin-stat { background:#F4F7FB; border-color:#D8E0E8; }
+    body.light-mode .coin-stat strong, body.light-mode .coin-modal-heading h2 { color:#172333; }
+    body.light-mode .coin-modal-close { background:#F0F4F8; color:#526174; border-color:#D1DAE4; }
+    body.light-mode .shock-asset { background:#F4F7FB; border-color:#D8E0E8; }
+    body.light-mode .chart-panel.expanded { background:#FFFFFF; border-color:#D8E0E8; }
+    body.light-mode .chart-count { color:#527A0C; background:#EDF6D9; border-color:#CFE4A3; }
+    @media(max-width:700px) {
+      .chart-panel.expanded { inset:2vh 2vw !important; height:96vh; padding:16px; }
+      .coin-modal { padding:22px 16px; }
+      .coin-stats-grid { grid-template-columns:1fr; }
+      .chart-title-row { align-items:flex-start; }
+    }
+
   </style>
 </head>
 
@@ -582,6 +662,7 @@ td:nth-child(2){font-weight:600}.symbol{color:#718096;font-weight:500}
 
       <div class="actions">
         <button class="btn secondary" id="demo">Simulate shock</button>
+        <button class="btn secondary" id="themeToggle" type="button" aria-label="Switch to light mode">☼ Light mode</button>
         <button class="btn" id="refresh">↻ Refresh pipeline</button>
       </div>
     </section>
@@ -618,22 +699,23 @@ td:nth-child(2){font-weight:600}.symbol{color:#718096;font-weight:500}
 
     <section class="grid">
 
-      <div class="panel">
-        <h2>01 / Volatility leaders</h2>
+      <div class="panel chart-panel" data-chart-panel="volChart">
+        <div class="chart-title-row"><h2>01 / Volatility leaders</h2><button class="chart-expand" data-expand="volChart" aria-label="Expand volatility chart">⤢ Expand</button></div>
         <div class="chartbox">
           <canvas id="volChart"></canvas>
         </div>
       </div>
 
-      <div class="panel">
-        <h2>02 / Liquidity map</h2>
+      <div class="panel chart-panel" data-chart-panel="liqChart">
+        <div class="chart-title-row"><h2>02 / Liquidity map <span id="liquidityCount" class="chart-count">0 assets</span></h2><button class="chart-expand" data-expand="liqChart" aria-label="Expand liquidity map">⤢ Expand</button></div>
         <div class="chartbox">
           <canvas id="liqChart"></canvas>
         </div>
+        <p class="chart-hint">Hover for market data · Click a dot for asset details</p>
       </div>
 
-      <div class="panel">
-        <h2>03 / Market breadth</h2>
+      <div class="panel chart-panel" data-chart-panel="breadthChart">
+        <div class="chart-title-row"><h2>03 / Market breadth</h2><button class="chart-expand" data-expand="breadthChart" aria-label="Expand market breadth chart">⤢ Expand</button></div>
         <div class="chartbox">
           <canvas id="breadthChart"></canvas>
         </div>
@@ -694,6 +776,20 @@ td:nth-child(2){font-weight:600}.symbol{color:#718096;font-weight:500}
     </div>
 
   </main>
+
+
+  <div id="coinModalBackdrop" class="coin-modal-backdrop" hidden>
+    <section class="coin-modal" role="dialog" aria-modal="true" aria-labelledby="coinModalTitle">
+      <button class="coin-modal-close" id="coinModalClose" aria-label="Close asset details">×</button>
+      <div id="coinModalContent"></div>
+    </section>
+  </div>
+  <div id="shockModalBackdrop" class="coin-modal-backdrop" hidden>
+    <section class="coin-modal shock-modal" role="dialog" aria-modal="true" aria-labelledby="shockModalTitle">
+      <button class="coin-modal-close" id="shockModalClose" aria-label="Close simulated shock details">×</button>
+      <div id="shockModalContent"></div>
+    </section>
+  </div>
 
   <script>
     const $ = id => document.getElementById(id);
@@ -804,6 +900,7 @@ td:nth-child(2){font-weight:600}.symbol{color:#718096;font-weight:500}
 
 
     let activeFilter = 'all';
+    let liquidityAssets = [];
 
     function sparkline(coin) {
       const values = coin.sparkline_in_7d && coin.sparkline_in_7d.price;
@@ -854,6 +951,112 @@ td:nth-child(2){font-weight:600}.symbol{color:#718096;font-weight:500}
           <td>${c.is_volatility_alert?'<span class="alert">SHOCK</span>':'—'}</td>
           <td>${sparkline(c)}</td>
         </tr>`).join('') || '<tr><td colspan="11">No matching assets.</td></tr>';
+    }
+
+
+    function ratio(volume, cap) {
+      const v = Number(volume), c = Number(cap);
+      return Number.isFinite(v) && Number.isFinite(c) && c > 0
+        ? `${(v / c * 100).toFixed(2)}%`
+        : '—';
+    }
+
+
+    function highlightLiquidityPoint(selectedIndex) {
+      const instance = charts['liqChart'];
+      if (!instance || !instance.data.datasets[0]) return;
+      const count = liquidityAssets.length;
+      instance.data.datasets[0].pointRadius = Array.from({length: count}, (_, i) => i === selectedIndex ? 8 : 4);
+      instance.data.datasets[0].pointHoverRadius = Array.from({length: count}, (_, i) => i === selectedIndex ? 10 : 7);
+      instance.data.datasets[0].pointBackgroundColor = Array.from({length: count}, (_, i) =>
+        i === selectedIndex ? '#FFFFFF' : 'rgba(183,228,69,.85)'
+      );
+      instance.data.datasets[0].pointBorderColor = Array.from({length: count}, (_, i) =>
+        i === selectedIndex ? '#B7E445' : '#D7FF67'
+      );
+      instance.update('none');
+    }
+
+    function showCoinModal(coin) {
+      const backdrop = $('coinModalBackdrop');
+      const content = $('coinModalContent');
+      if (!backdrop || !content) return;
+      const symbol = escapeHTML(String(coin.symbol || '').toUpperCase());
+      const name = escapeHTML(coin.name || 'Unknown asset');
+      const image = typeof coin.image === 'string' ? escapeHTML(coin.image) : '';
+      const avatar = image
+        ? `<img class="modal-coin-icon" src="${image}" alt="" onerror="this.style.display='none'">`
+        : `<span class="modal-coin-fallback">${symbol.slice(0,3) || '?'}</span>`;
+      content.innerHTML = `
+        <div class="coin-modal-heading">
+          <div class="modal-coin-identity">${avatar}<div><h2 id="coinModalTitle">${name} <span>${symbol}</span></h2><p>Selected asset · Liquidity map</p></div></div>
+        </div>
+        <div class="coin-stats-grid">
+          <div class="coin-stat"><span>Market capitalization</span><strong>${money(coin.market_cap)}</strong></div>
+          <div class="coin-stat"><span>24h trading volume</span><strong>${money(coin.total_volume)}</strong></div>
+          <div class="coin-stat"><span>Volatility</span><strong>${pct(coin.volatility_pct)}</strong></div>
+          <div class="coin-stat"><span>Volume / market cap</span><strong>${ratio(coin.total_volume, coin.market_cap)}</strong></div>
+          <div class="coin-stat"><span>Current price</span><strong>${money(coin.current_price)}</strong></div>
+          <div class="coin-stat"><span>24h price change</span><strong class="${Number(coin.price_change_percentage_24h) >= 0 ? 'positive' : 'negative'}">${pct(coin.price_change_percentage_24h)}</strong></div>
+        </div>
+        <p class="coin-modal-note">Values come from the latest market snapshot. Volume-to-cap is an activity indicator, not a direct order-book liquidity measurement.</p>`;
+      backdrop.hidden = false;
+      document.body.classList.add('modal-open');
+      $('coinModalClose')?.focus();
+    }
+
+    function closeModal(id) {
+      const backdrop = $(id);
+      if (backdrop) backdrop.hidden = true;
+      if ($('coinModalBackdrop')?.hidden && $('shockModalBackdrop')?.hidden) {
+        document.body.classList.remove('modal-open');
+      }
+    }
+
+    function showShockModal(coin) {
+      const backdrop = $('shockModalBackdrop');
+      const content = $('shockModalContent');
+      const volatility = Number(coin.volatility_pct);
+      const alertState = Number.isFinite(volatility) && volatility >= 10;
+      const symbol = escapeHTML(String(coin.symbol || '').toUpperCase());
+      const name = escapeHTML(coin.name || 'Unknown asset');
+      content.innerHTML = `
+        <div class="eyebrow">SIMULATION / VOLATILITY EVENT</div>
+        <h2 id="shockModalTitle">Simulated market shock</h2>
+        <div class="shock-asset"><span class="shock-indicator ${alertState ? 'hot' : ''}"></span><div><strong>${name} (${symbol})</strong><p>Highest measured volatility in the current snapshot</p></div></div>
+        <div class="coin-stats-grid">
+          <div class="coin-stat"><span>Measured volatility</span><strong>${pct(volatility)}</strong></div>
+          <div class="coin-stat"><span>Alert threshold</span><strong>10.00%</strong></div>
+          <div class="coin-stat"><span>Market cap</span><strong>${money(coin.market_cap)}</strong></div>
+          <div class="coin-stat"><span>24h volume</span><strong>${money(coin.total_volume)}</strong></div>
+          <div class="coin-stat"><span>Alert status</span><strong class="${alertState ? 'negative' : 'positive'}">${alertState ? 'Threshold reached' : 'Below threshold'}</strong></div>
+          <div class="coin-stat"><span>Pipeline action</span><strong>Demo only</strong></div>
+        </div>
+        <p class="coin-modal-note">This is a local UI simulation only. It does not change market data, execute trades, or send a webhook.</p>`;
+      backdrop.hidden = false;
+      document.body.classList.add('modal-open');
+      $('shockModalClose')?.focus();
+    }
+
+    function expandChart(chartId) {
+      const panel = document.querySelector(`[data-chart-panel="${chartId}"]`);
+      if (!panel) return;
+      document.querySelectorAll('.chart-panel.expanded').forEach(p => p.classList.remove('expanded'));
+      panel.classList.add('expanded');
+      document.body.classList.add('chart-expanded');
+      const btn = panel.querySelector('.chart-expand');
+      if (btn) { btn.textContent = '× Close'; btn.dataset.close = 'true'; }
+      Object.values(charts).forEach(c => c && c.resize());
+    }
+
+    function closeExpandedChart() {
+      document.querySelectorAll('.chart-panel.expanded').forEach(panel => {
+        panel.classList.remove('expanded');
+        const btn = panel.querySelector('.chart-expand');
+        if (btn) { btn.textContent = '⤢ Expand'; delete btn.dataset.close; }
+      });
+      document.body.classList.remove('chart-expanded');
+      Object.values(charts).forEach(c => c && c.resize());
     }
 
     function render(data) {
@@ -941,21 +1144,24 @@ td:nth-child(2){font-weight:600}.symbol{color:#718096;font-weight:500}
         }],
         {
           indexAxis: 'y',
+          onClick: () => expandChart('volChart'),
           plugins: {
             legend: { display: false }
           }
         }
       );
 
-      const liquidityAssets = [...coins]
+      liquidityAssets = [...coins]
         .filter(c =>
           Number(c.market_cap) > 0 &&
           Number(c.total_volume) > 0
         )
         .sort((a, b) =>
           Number(b.market_cap) - Number(a.market_cap)
-        )
-        .slice(0, 20);
+        );
+
+      const countEl = $('liquidityCount');
+      if (countEl) countEl.textContent = `${liquidityAssets.length} / ${coins.length} assets`;
 
       chart(
         'liqChart',
@@ -965,29 +1171,59 @@ td:nth-child(2){font-weight:600}.symbol{color:#718096;font-weight:500}
           label: 'Assets',
           data: liquidityAssets.map(c => ({
             x: Number(c.market_cap),
-            y: Number(c.total_volume)
+            y: Number(c.total_volume),
+            coinName: c.name,
+            coinSymbol: String(c.symbol || '').toUpperCase()
           })),
-          backgroundColor: 'rgba(183,228,69,.78)'
+          pointRadius: 5,
+          pointHoverRadius: 8,
+          pointBackgroundColor: 'rgba(183,228,69,.85)',
+          pointBorderColor: '#D7FF67',
+          pointBorderWidth: 1
         }],
         {
+          onClick: (event, elements) => {
+            if (!elements || !elements.length) {
+              expandChart('liqChart');
+              return;
+            }
+            const index = elements[0].index;
+            const selected = liquidityAssets[index];
+            if (selected) {
+              highlightLiquidityPoint(index);
+              showCoinModal(selected);
+            }
+          },
           scales: {
             x: {
               type: 'logarithmic',
-              title: {
-                display: true,
-                text: 'Market cap (USD)'
-              }
+              title: { display: true, text: 'Market cap (USD)' },
+              ticks: { maxRotation: 35, minRotation: 0 }
             },
             y: {
               type: 'logarithmic',
-              title: {
-                display: true,
-                text: '24h volume (USD)'
-              }
+              title: { display: true, text: '24h volume (USD)' }
             }
           },
           plugins: {
-            legend: { display: false }
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                title: (items) => {
+                  const coin = liquidityAssets[items[0]?.dataIndex];
+                  return coin ? `${coin.name} (${String(coin.symbol || '').toUpperCase()})` : 'Asset';
+                },
+                label: (item) => {
+                  const coin = liquidityAssets[item.dataIndex];
+                  return coin ? [
+                    `Market cap: ${money(coin.market_cap)}`,
+                    `24h volume: ${money(coin.total_volume)}`,
+                    `Volatility: ${pct(coin.volatility_pct)}`,
+                    `Volume / cap: ${ratio(coin.total_volume, coin.market_cap)}`
+                  ] : '';
+                }
+              }
+            }
           }
         }
       );
@@ -1013,7 +1249,8 @@ td:nth-child(2){font-weight:600}.symbol{color:#718096;font-weight:500}
           ]
         }],
         {
-          cutout: '65%'
+          cutout: '65%',
+          onClick: () => expandChart('breadthChart')
         }
       );
 
@@ -1070,21 +1307,68 @@ td:nth-child(2){font-weight:600}.symbol{color:#718096;font-weight:500}
 
     $('demo').addEventListener('click', () => {
       if (!coins.length) {
-        alert('Load market data first.');
+        status('Load market data first to simulate a shock.', true);
         return;
       }
-
       const coin = coins.reduce((a, b) =>
         Number(a.volatility_pct) > Number(b.volatility_pct) ? a : b
       );
-
-      alert(
-        `SIMULATED SHOCK\n${coin.name} (${coin.symbol})\n` +
-        `Measured volatility: ${Number(coin.volatility_pct).toFixed(2)}%\n` +
-        'Threshold: 10%\n\n' +
-        'Demo only — no webhook was sent.'
-      );
+      showShockModal(coin);
     });
+
+    $('themeToggle').addEventListener('click', () => {
+      const light = !document.body.classList.contains('light-mode');
+      document.body.classList.toggle('light-mode', light);
+      $('themeToggle').textContent = light ? '☾ Dark mode' : '☼ Light mode';
+      $('themeToggle').setAttribute('aria-label', light ? 'Switch to dark mode' : 'Switch to light mode');
+      try { localStorage.setItem('blackcoin-theme', light ? 'light' : 'dark'); } catch (_) {}
+      if (typeof Chart !== 'undefined') {
+        Chart.defaults.color = light ? '#526174' : '#A6B3C5';
+        Chart.defaults.borderColor = light ? 'rgba(60,78,98,.16)' : 'rgba(166,179,197,.14)';
+        Object.values(charts).forEach(c => c && c.update('none'));
+      }
+    });
+
+    document.querySelectorAll('[data-expand]').forEach(button => {
+      button.addEventListener('click', (event) => {
+        event.stopPropagation();
+        if (button.dataset.close === 'true') closeExpandedChart();
+        else expandChart(button.dataset.expand);
+      });
+    });
+
+    document.querySelectorAll('[data-chart-panel] h2').forEach(title => {
+      title.style.cursor = 'zoom-in';
+      title.title = 'Click to expand chart';
+      title.addEventListener('click', () => {
+        const panel = title.closest('[data-chart-panel]');
+        if (panel) expandChart(panel.dataset.chartPanel);
+      });
+    });
+
+    $('coinModalClose').addEventListener('click', () => closeModal('coinModalBackdrop'));
+    $('shockModalClose').addEventListener('click', () => closeModal('shockModalBackdrop'));
+    ['coinModalBackdrop', 'shockModalBackdrop'].forEach(id => {
+      $(id).addEventListener('click', event => {
+        if (event.target.id === id) closeModal(id);
+      });
+    });
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape') {
+        closeModal('coinModalBackdrop');
+        closeModal('shockModalBackdrop');
+        closeExpandedChart();
+      }
+    });
+
+    try {
+      const savedTheme = localStorage.getItem('blackcoin-theme');
+      if (savedTheme === 'light') {
+        document.body.classList.add('light-mode');
+        $('themeToggle').textContent = '☾ Dark mode';
+        $('themeToggle').setAttribute('aria-label', 'Switch to dark mode');
+      }
+    } catch (_) {}
 
     $('search').addEventListener('input', table);
     document.querySelectorAll('[data-filter]').forEach(button => {
