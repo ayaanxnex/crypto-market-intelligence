@@ -635,6 +635,57 @@ td:nth-child(2){font-weight:600}.symbol{color:#718096;font-weight:500}
       .chart-title-row { align-items:flex-start; }
     }
 
+
+    /* Coin detail price-chart view */
+    .asset-row { cursor:pointer; }
+    .asset-row:focus-visible { outline:2px solid var(--bc-lime); outline-offset:-2px; }
+    .asset-row:hover td { background:rgba(183,228,69,.055); }
+    .price-open-btn { margin-top:16px; }
+    .price-detail-backdrop[hidden] { display:none !important; }
+    .price-detail-backdrop {
+      position:fixed; inset:0; z-index:1700; overflow:auto;
+      background:#0D1420; color:#F4F7FB; padding:clamp(16px,3vw,42px);
+    }
+    .price-detail { max-width:1240px; min-height:100%; margin:0 auto; }
+    .price-detail-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:26px; }
+    .price-back-btn { background:#1D2A3C; color:#D5DEEA; border:1px solid #35465A; border-radius:9px; padding:10px 14px; cursor:pointer; }
+    .price-back-btn:hover { border-color:#B7E445; color:#B7E445; }
+    .price-detail-identity { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:20px; margin-bottom:28px; }
+    .price-detail-coin { display:flex; align-items:center; gap:15px; }
+    .price-detail-icon,.price-detail-fallback { width:48px; height:48px; border-radius:50%; object-fit:contain; }
+    .price-detail-fallback { display:flex; align-items:center; justify-content:center; background:#263548; color:#B7E445; font-weight:700; }
+    .price-detail-coin h2 { margin:0; font-size:clamp(22px,3vw,32px); }
+    .price-detail-coin h2 span { color:#A6B3C5; font-size:.65em; }
+    .price-detail-coin p { margin:6px 0 0; font:11px 'DM Mono',monospace; color:#A6B3C5; letter-spacing:1px; }
+    .price-detail-current { display:flex; flex-direction:column; gap:5px; }
+    .price-detail-current strong { font-size:clamp(30px,5vw,44px); letter-spacing:-1px; }
+    .price-detail-current span { font-size:15px; }
+    .price-detail-current small { color:#A6B3C5; }
+    .price-detail-tabs { display:flex; gap:8px; flex-wrap:wrap; margin:24px 0 12px; }
+    .price-range { border:1px solid #35465A; background:#182233; color:#A6B3C5; border-radius:8px; padding:9px 16px; cursor:pointer; font-weight:600; }
+    .price-range:hover { border-color:#B7E445; color:#B7E445; }
+    .price-range.active { background:#B7E445; border-color:#B7E445; color:#101719; }
+    .price-detail-status { min-height:30px; margin:12px 0; color:#A6B3C5; font-size:14px; }
+    .price-detail-status strong { color:#F4F7FB; font-size:24px; margin-right:10px; }
+    .price-detail-chartbox { height:min(48vh,470px); min-height:280px; padding:10px 0; }
+    .price-detail-stats { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin-top:20px; }
+    .price-detail-stat { display:flex; flex-direction:column; gap:8px; padding:16px; background:#141E2D; border:1px solid #2A394B; border-radius:11px; }
+    .price-detail-stat span { color:#A6B3C5; font:10px 'DM Mono',monospace; text-transform:uppercase; }
+    .price-detail-stat strong { color:#F4F7FB; font-size:18px; overflow-wrap:anywhere; }
+    .price-detail-note { color:#8191A5; font-size:12px; line-height:1.6; margin-top:22px; }
+    body.light-mode .price-detail-backdrop { background:#F4F7FB; color:#172333; }
+    body.light-mode .price-back-btn, body.light-mode .price-range { background:#FFFFFF; color:#526174; border-color:#D8E0E8; }
+    body.light-mode .price-range.active { background:#709D17; color:#FFFFFF; border-color:#709D17; }
+    body.light-mode .price-detail-coin h2, body.light-mode .price-detail-current strong { color:#172333; }
+    body.light-mode .price-detail-coin h2 span, body.light-mode .price-detail-current small, body.light-mode .price-detail-status { color:#526174; }
+    body.light-mode .price-detail-stat { background:#FFFFFF; border-color:#D8E0E8; }
+    body.light-mode .price-detail-stat strong { color:#172333; }
+    @media(max-width:720px) {
+      .price-detail-identity { align-items:flex-start; flex-direction:column; }
+      .price-detail-stats { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .price-detail-chartbox { height:42vh; min-height:250px; }
+    }
+
   </style>
 </head>
 
@@ -791,6 +842,28 @@ td:nth-child(2){font-weight:600}.symbol{color:#718096;font-weight:500}
     </section>
   </div>
 
+
+  <div id="priceDetailBackdrop" class="price-detail-backdrop" hidden>
+    <section class="price-detail" role="dialog" aria-modal="true" aria-labelledby="priceDetailName">
+      <header class="price-detail-header">
+        <button id="priceDetailBack" class="price-back-btn" type="button">← Dashboard</button>
+        <button id="priceDetailClose" class="coin-modal-close" type="button" aria-label="Close price chart">×</button>
+      </header>
+      <div id="priceDetailIdentity" class="price-detail-identity"></div>
+      <div class="price-detail-tabs" role="group" aria-label="Historical price range">
+        <button class="price-range active" data-days="1">1D</button>
+        <button class="price-range" data-days="7">7D</button>
+        <button class="price-range" data-days="30">1M</button>
+        <button class="price-range" data-days="90">3M</button>
+        <button class="price-range" data-days="365">1Y</button>
+      </div>
+      <div id="priceDetailStatus" class="price-detail-status">Loading historical prices…</div>
+      <div class="price-detail-chartbox"><canvas id="priceHistoryChart"></canvas></div>
+      <div class="price-detail-stats" id="priceDetailStats"></div>
+      <p class="price-detail-note">Historical prices are retrieved from CoinGecko when you open this view. Data availability and granularity depend on the selected time range and API limits.</p>
+    </section>
+  </div>
+
   <script>
     const $ = id => document.getElementById(id);
 
@@ -938,7 +1011,7 @@ td:nth-child(2){font-weight:600}.symbol{color:#718096;font-weight:500}
       });
       $('rowCount').textContent = `${filtered.length} of ${coins.length} assets`;
       $('rows').innerHTML = filtered.map(c => `
-        <tr>
+        <tr class="asset-row" data-coin-id="${escapeHTML(c.id || '')}" tabindex="0" role="button" aria-label="Open ${escapeHTML(c.name || 'asset')} price chart">
           <td>${escapeHTML(c.market_cap_rank ?? '—')}</td>
           <td>${coinIdentity(c)}</td>
           <td>${money(c.current_price)}</td>
@@ -953,6 +1026,112 @@ td:nth-child(2){font-weight:600}.symbol{color:#718096;font-weight:500}
         </tr>`).join('') || '<tr><td colspan="11">No matching assets.</td></tr>';
     }
 
+
+
+    let priceHistoryChart = null;
+    let selectedPriceCoin = null;
+    let selectedPriceDays = 1;
+    let priceRequestToken = 0;
+
+    function formatPrice(value) {
+      const n = Number(value);
+      if (!Number.isFinite(n)) return '—';
+      const digits = n >= 1000 ? 2 : n >= 1 ? 4 : 7;
+      return '$' + n.toLocaleString('en-US', { maximumFractionDigits: digits });
+    }
+
+    function openPriceDetail(coin) {
+      if (!coin || !coin.id) {
+        status('Historical chart unavailable: this asset has no API identifier.', true);
+        return;
+      }
+      selectedPriceCoin = coin;
+      selectedPriceDays = 1;
+      $('coinModalBackdrop').hidden = true;
+      $('priceDetailBackdrop').hidden = false;
+      document.body.classList.add('modal-open');
+      const symbol = escapeHTML(String(coin.symbol || '').toUpperCase());
+      const name = escapeHTML(coin.name || 'Unknown asset');
+      const image = typeof coin.image === 'string' ? escapeHTML(coin.image) : '';
+      const avatar = image
+        ? `<img class="price-detail-icon" src="${image}" alt="" onerror="this.style.display='none'">`
+        : `<span class="price-detail-fallback">${symbol.slice(0,3) || '?'}</span>`;
+      const change = Number(coin.price_change_percentage_24h);
+      $('priceDetailIdentity').innerHTML = `
+        <div class="price-detail-coin">${avatar}<div><h2 id="priceDetailName">${name} <span>(${symbol})</span></h2><p>CRYPTOCURRENCY / USD</p></div></div>
+        <div class="price-detail-current"><strong>${formatPrice(coin.current_price)}</strong><span class="${change >= 0 ? 'positive' : 'negative'}">${pct(change)} <small>past 24 hours</small></span></div>`;
+      $('priceDetailStats').innerHTML = `
+        <div class="price-detail-stat"><span>Market cap</span><strong>${money(coin.market_cap)}</strong></div>
+        <div class="price-detail-stat"><span>24h volume</span><strong>${money(coin.total_volume)}</strong></div>
+        <div class="price-detail-stat"><span>Volatility</span><strong>${pct(coin.volatility_pct)}</strong></div>
+        <div class="price-detail-stat"><span>Volume / cap</span><strong>${ratio(coin.total_volume, coin.market_cap)}</strong></div>`;
+      document.querySelectorAll('.price-range').forEach(b => b.classList.toggle('active', Number(b.dataset.days) === 1));
+      loadPriceHistory(coin, 1);
+    }
+
+    async function loadPriceHistory(coin, days) {
+      selectedPriceDays = days;
+      const requestToken = ++priceRequestToken;
+      $('priceDetailStatus').textContent = 'Loading historical prices…';
+      $('priceDetailStatus').className = 'price-detail-status';
+      try {
+        const data = await apiRequest(`/api/history?id=${encodeURIComponent(coin.id)}&days=${encodeURIComponent(days)}`);
+        if (requestToken !== priceRequestToken) return;
+        const points = Array.isArray(data.prices) ? data.prices : [];
+        if (points.length < 2) throw new Error('Not enough historical points were returned for this range.');
+        const labels = points.map(p => new Date(Number(p[0])).toLocaleString([], days === 1
+          ? { hour: '2-digit', minute: '2-digit' }
+          : days <= 7 ? { month: 'short', day: 'numeric', hour: '2-digit' }
+          : { month: 'short', day: 'numeric' }));
+        const values = points.map(p => Number(p[1]));
+        const first = values[0], last = values[values.length - 1];
+        const movement = first ? ((last - first) / first * 100) : 0;
+        const lineColor = movement >= 0 ? '#B7E445' : '#F06A72';
+        if (priceHistoryChart) priceHistoryChart.destroy();
+        priceHistoryChart = new Chart($('priceHistoryChart'), {
+          type: 'line',
+          data: { labels, datasets: [{
+            label: `${coin.name} price (USD)`,
+            data: values,
+            borderColor: lineColor,
+            backgroundColor: movement >= 0 ? 'rgba(183,228,69,.16)' : 'rgba(240,106,114,.15)',
+            fill: true,
+            pointRadius: 0,
+            pointHoverRadius: 4,
+            borderWidth: 2,
+            tension: .18
+          }]},
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: { intersect: false, mode: 'index' },
+            plugins: {
+              legend: { display: false },
+              tooltip: { callbacks: { label: item => formatPrice(item.raw) } }
+            },
+            scales: {
+              x: { grid: { display: false }, ticks: { maxTicksLimit: 7, maxRotation: 0 } },
+              y: { grid: { color: 'rgba(166,179,197,.12)' }, ticks: { callback: value => formatPrice(value) } }
+            }
+          }
+        });
+        $('priceDetailStatus').innerHTML = `<strong>${formatPrice(last)}</strong> <span class="${movement >= 0 ? 'positive' : 'negative'}">${movement >= 0 ? '+' : ''}${movement.toFixed(2)}%</span><span> · ${days === 1 ? '24 hours' : days === 7 ? '7 days' : days === 30 ? '1 month' : days === 90 ? '3 months' : '1 year'}</span>`;
+        Object.values(charts).forEach(c => c && c.resize());
+      } catch (error) {
+        if (requestToken !== priceRequestToken) return;
+        $('priceDetailStatus').textContent = `Could not load history: ${error.message}. Try another range or refresh later.`;
+        $('priceDetailStatus').className = 'price-detail-status error';
+        if (priceHistoryChart) { priceHistoryChart.destroy(); priceHistoryChart = null; }
+      }
+    }
+
+    function closePriceDetail() {
+      priceRequestToken++;
+      $('priceDetailBackdrop').hidden = true;
+      document.body.classList.remove('modal-open');
+      if (priceHistoryChart) { priceHistoryChart.destroy(); priceHistoryChart = null; }
+      Object.values(charts).forEach(c => c && c.resize());
+    }
 
     function ratio(volume, cap) {
       const v = Number(volume), c = Number(cap);
@@ -999,7 +1178,10 @@ td:nth-child(2){font-weight:600}.symbol{color:#718096;font-weight:500}
           <div class="coin-stat"><span>Current price</span><strong>${money(coin.current_price)}</strong></div>
           <div class="coin-stat"><span>24h price change</span><strong class="${Number(coin.price_change_percentage_24h) >= 0 ? 'positive' : 'negative'}">${pct(coin.price_change_percentage_24h)}</strong></div>
         </div>
+        <button class="btn price-open-btn" id="openPriceFromCoin" type="button">View price chart ↗</button>
         <p class="coin-modal-note">Values come from the latest market snapshot. Volume-to-cap is an activity indicator, not a direct order-book liquidity measurement.</p>`;
+      const openPriceButton = $('openPriceFromCoin');
+      if (openPriceButton) openPriceButton.addEventListener('click', () => openPriceDetail(coin));
       backdrop.hidden = false;
       document.body.classList.add('modal-open');
       $('coinModalClose')?.focus();
@@ -1346,6 +1528,35 @@ td:nth-child(2){font-weight:600}.symbol{color:#718096;font-weight:500}
       });
     });
 
+
+    $('rows').addEventListener('click', event => {
+      if (event.target.closest('button, a, input')) return;
+      const row = event.target.closest('tr[data-coin-id]');
+      if (!row) return;
+      const coin = coins.find(c => String(c.id) === row.dataset.coinId);
+      if (coin) openPriceDetail(coin);
+    });
+    $('rows').addEventListener('keydown', event => {
+      if (event.key !== 'Enter' && event.key !== ' ') return;
+      const row = event.target.closest('tr[data-coin-id]');
+      if (!row) return;
+      event.preventDefault();
+      const coin = coins.find(c => String(c.id) === row.dataset.coinId);
+      if (coin) openPriceDetail(coin);
+    });
+    document.querySelectorAll('.price-range').forEach(button => {
+      button.addEventListener('click', () => {
+        if (!selectedPriceCoin) return;
+        document.querySelectorAll('.price-range').forEach(b => b.classList.toggle('active', b === button));
+        loadPriceHistory(selectedPriceCoin, Number(button.dataset.days));
+      });
+    });
+    $('priceDetailClose').addEventListener('click', closePriceDetail);
+    $('priceDetailBack').addEventListener('click', closePriceDetail);
+    $('priceDetailBackdrop').addEventListener('click', event => {
+      if (event.target.id === 'priceDetailBackdrop') closePriceDetail();
+    });
+
     $('coinModalClose').addEventListener('click', () => closeModal('coinModalBackdrop'));
     $('shockModalClose').addEventListener('click', () => closeModal('shockModalBackdrop'));
     ['coinModalBackdrop', 'shockModalBackdrop'].forEach(id => {
@@ -1355,6 +1566,7 @@ td:nth-child(2){font-weight:600}.symbol{color:#718096;font-weight:500}
     });
     document.addEventListener('keydown', event => {
       if (event.key === 'Escape') {
+        closePriceDetail();
         closeModal('coinModalBackdrop');
         closeModal('shockModalBackdrop');
         closeExpandedChart();
