@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1041,32 +1040,59 @@ td:nth-child(2){font-weight:600}.symbol{color:#718096;font-weight:500}
     }
 
     function openPriceDetail(coin) {
-      if (!coin || !coin.id) {
+      if (!coin) return;
+
+      const coinId = coin.coin_id || coin.id;
+
+      if (!coinId) {
         status('Historical chart unavailable: this asset has no API identifier.', true);
         return;
       }
-      selectedPriceCoin = coin;
+
+      // Normalize the identifier for all historical-price requests.
+      selectedPriceCoin = { ...coin, id: coinId };
       selectedPriceDays = 1;
+
       $('coinModalBackdrop').hidden = true;
       $('priceDetailBackdrop').hidden = false;
       document.body.classList.add('modal-open');
+
       const symbol = escapeHTML(String(coin.symbol || '').toUpperCase());
       const name = escapeHTML(coin.name || 'Unknown asset');
       const image = typeof coin.image === 'string' ? escapeHTML(coin.image) : '';
+
       const avatar = image
         ? `<img class="price-detail-icon" src="${image}" alt="" onerror="this.style.display='none'">`
         : `<span class="price-detail-fallback">${symbol.slice(0,3) || '?'}</span>`;
+
       const change = Number(coin.price_change_percentage_24h);
+
       $('priceDetailIdentity').innerHTML = `
-        <div class="price-detail-coin">${avatar}<div><h2 id="priceDetailName">${name} <span>(${symbol})</span></h2><p>CRYPTOCURRENCY / USD</p></div></div>
-        <div class="price-detail-current"><strong>${formatPrice(coin.current_price)}</strong><span class="${change >= 0 ? 'positive' : 'negative'}">${pct(change)} <small>past 24 hours</small></span></div>`;
+        <div class="price-detail-coin">
+          ${avatar}
+          <div>
+            <h2 id="priceDetailName">${name} <span>(${symbol})</span></h2>
+            <p>CRYPTOCURRENCY / USD</p>
+          </div>
+        </div>
+        <div class="price-detail-current">
+          <strong>${formatPrice(coin.current_price)}</strong>
+          <span class="${change >= 0 ? 'positive' : 'negative'}">
+            ${pct(change)} <small>past 24 hours</small>
+          </span>
+        </div>`;
+
       $('priceDetailStats').innerHTML = `
         <div class="price-detail-stat"><span>Market cap</span><strong>${money(coin.market_cap)}</strong></div>
         <div class="price-detail-stat"><span>24h volume</span><strong>${money(coin.total_volume)}</strong></div>
         <div class="price-detail-stat"><span>Volatility</span><strong>${pct(coin.volatility_pct)}</strong></div>
         <div class="price-detail-stat"><span>Volume / cap</span><strong>${ratio(coin.total_volume, coin.market_cap)}</strong></div>`;
-      document.querySelectorAll('.price-range').forEach(b => b.classList.toggle('active', Number(b.dataset.days) === 1));
-      loadPriceHistory(coin, 1);
+
+      document.querySelectorAll('.price-range').forEach(button =>
+        button.classList.toggle('active', Number(button.dataset.days) === 1)
+      );
+
+      loadPriceHistory(selectedPriceCoin, 1);
     }
 
     async function loadPriceHistory(coin, days) {
@@ -1075,7 +1101,15 @@ td:nth-child(2){font-weight:600}.symbol{color:#718096;font-weight:500}
       $('priceDetailStatus').textContent = 'Loading historical prices…';
       $('priceDetailStatus').className = 'price-detail-status';
       try {
-        const data = await apiRequest(`/api/history?id=${encodeURIComponent(coin.coin_id || coin.id)}&days=${encodeURIComponent(days)}`);
+        const coinId = coin.coin_id || coin.id;
+
+        if (!coinId) {
+          throw new Error('CoinGecko identifier is missing.');
+        }
+
+        const data = await apiRequest(
+          `/api/history?id=${encodeURIComponent(coinId)}&days=${encodeURIComponent(days)}`
+        );
         if (requestToken !== priceRequestToken) return;
         const points = Array.isArray(data.prices) ? data.prices : [];
         if (points.length < 2) throw new Error('Not enough historical points were returned for this range.');
@@ -1531,21 +1565,32 @@ td:nth-child(2){font-weight:600}.symbol{color:#718096;font-weight:500}
 
     $('rows').addEventListener('click', event => {
       if (event.target.closest('button, a, input')) return;
+
       const row = event.target.closest('tr[data-coin-id]');
       if (!row) return;
+
       const coin = coins.find(
-    c => String(c.coin_id || c.id) === row.dataset.coinId
-);
+        c => String(c.coin_id || c.id) === row.dataset.coinId
+      );
+
       if (coin) openPriceDetail(coin);
     });
+
     $('rows').addEventListener('keydown', event => {
       if (event.key !== 'Enter' && event.key !== ' ') return;
+
       const row = event.target.closest('tr[data-coin-id]');
       if (!row) return;
+
       event.preventDefault();
-      const coin = coins.find(c => String(c.id) === row.dataset.coinId);
+
+      const coin = coins.find(
+        c => String(c.coin_id || c.id) === row.dataset.coinId
+      );
+
       if (coin) openPriceDetail(coin);
     });
+
     document.querySelectorAll('.price-range').forEach(button => {
       button.addEventListener('click', () => {
         if (!selectedPriceCoin) return;
