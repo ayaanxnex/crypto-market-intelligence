@@ -1011,7 +1011,7 @@ td:nth-child(2){font-weight:600}.symbol{color:#718096;font-weight:500}
       });
       $('rowCount').textContent = `${filtered.length} of ${coins.length} assets`;
       $('rows').innerHTML = filtered.map(c => `
-        <tr class="asset-row" data-coin-id="${escapeHTML(c.id || '')}" tabindex="0" role="button" aria-label="Open ${escapeHTML(c.name || 'asset')} price chart">
+        <tr class="asset-row" data-coin-id="${escapeHTML(c.coin_id || c.id || '')}" tabindex="0" role="button" aria-label="Open ${escapeHTML(c.name || 'asset')} price chart">
           <td>${escapeHTML(c.market_cap_rank ?? '—')}</td>
           <td>${coinIdentity(c)}</td>
           <td>${money(c.current_price)}</td>
@@ -1075,7 +1075,7 @@ td:nth-child(2){font-weight:600}.symbol{color:#718096;font-weight:500}
       $('priceDetailStatus').textContent = 'Loading historical prices…';
       $('priceDetailStatus').className = 'price-detail-status';
       try {
-        const data = await apiRequest(`/api/history?id=${encodeURIComponent(coin.id)}&days=${encodeURIComponent(days)}`);
+        const data = await apiRequest(`/api/history?id=${encodeURIComponent(coin.coin_id || coin.id)}&days=${encodeURIComponent(days)}`);
         if (requestToken !== priceRequestToken) return;
         const points = Array.isArray(data.prices) ? data.prices : [];
         if (points.length < 2) throw new Error('Not enough historical points were returned for this range.');
@@ -1533,7 +1533,9 @@ td:nth-child(2){font-weight:600}.symbol{color:#718096;font-weight:500}
       if (event.target.closest('button, a, input')) return;
       const row = event.target.closest('tr[data-coin-id]');
       if (!row) return;
-      const coin = coins.find(c => String(c.id) === row.dataset.coinId);
+      const coin = coins.find(
+    c => String(c.coin_id || c.id) === row.dataset.coinId
+);
       if (coin) openPriceDetail(coin);
     });
     $('rows').addEventListener('keydown', event => {
