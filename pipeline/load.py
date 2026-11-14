@@ -91,20 +91,19 @@ def record_run(stats, engine=None):
         **stats
     }
 
-    # Create the table on the first run.
     if not inspect(engine).has_table(RUNS_TABLE):
         pd.DataFrame([row]).to_sql(
             RUNS_TABLE, engine, if_exists="fail", index=False
         )
         return
 
-    # Add any missing columns without deleting existing run history.
     existing = {
         column["name"]
         for column in inspect(engine).get_columns(RUNS_TABLE)
     }
 
     column_types = {
+        "run_at": "VARCHAR(40)",
         "fetched": "INTEGER",
         "valid": "INTEGER",
         "rejected": "INTEGER",

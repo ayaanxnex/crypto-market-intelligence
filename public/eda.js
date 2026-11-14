@@ -7,16 +7,16 @@
   'use strict';
 
   /* ============ EDIT THESE FOR YOUR ASSIGNMENT WRITE-UP ============ */
-  const CONFIG = {
-    dataset: 'CoinGecko public API (/coins/markets), top 50 cryptocurrencies by market cap, USD.',
+  
+const CONFIG = {
+    dataset: 'CoinGecko public API (/coins/markets), top 50 cryptocurrencies by market capitalization, USD.',
     whyDataset:
-      'Crypto markets are public, high-frequency and volatile, so they give a live, realistic dataset ' +
-      'with mixed asset types (large caps, meme coins, stablecoins, tokenized funds) that makes EDA interesting.',
-    storage: 'YOUR DATABASE / FILE HERE (e.g. Supabase PostgreSQL, SQLite, CSV)',
+      'Cryptocurrency markets provide publicly available and frequently updated data. The dataset includes different asset categories such as large-cap coins, stablecoins and other cryptocurrencies, making it suitable for exploratory data analysis.',
+    storage: 'SQLite for local development and Supabase PostgreSQL for deployed storage.',
     whyStorage:
-      'EDIT ME: explain why you chose this storage (e.g. free hosted tier, works with Vercel serverless, ' +
-      'supports timestamped snapshots).',
-    stack: 'Python serverless functions on Vercel · pandas (transform) · Pydantic (validation) · Chart.js dashboard',
+      'SQLite provides lightweight local storage during development. Supabase PostgreSQL provides persistent hosted relational storage for the deployed Vercel application. SQLAlchemy supports database interaction.',
+    stack: 'Python · Requests · Pydantic · Pandas · SQLAlchemy · SQLite · Supabase PostgreSQL · Matplotlib · Seaborn · Chart.js',
+
     edaQuestions: [
       'How is 24h price change distributed across the top 50 assets, and is the market broad or narrow?',
       'Which assets are statistical outliers in volatility, return and trading activity?',
